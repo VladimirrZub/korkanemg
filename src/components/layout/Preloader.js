@@ -95,7 +95,7 @@ const OrbitingDot = styled.div`
   position: absolute;
   width: 20px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.8);
   border-radius: 50%;
   animation: ${orbit} 3s linear infinite;
   animation-delay: ${props => props.delay || '0s'};

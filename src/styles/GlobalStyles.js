@@ -31,8 +31,7 @@ export const GlobalStyles = createGlobalStyle`
     margin: 0 auto;
     padding: 0 20px;
   }
-
-  /* Стилизация скроллбара */
+  
   ::-webkit-scrollbar {
     width: 8px;
   }

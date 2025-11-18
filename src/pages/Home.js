@@ -346,12 +346,6 @@ const FeatureCard = styled.div`
   }
 `;
 
-const FeatureIcon = styled.div`
-  font-size: 3.5rem;
-  margin-bottom: 1.5rem;
-  animation: ${float} 5s ease-in-out infinite;
-`;
-
 const FeatureTitle = styled.h3`
   font-size: 1.5rem;
   font-weight: 700;
@@ -441,11 +435,9 @@ const Home = () => {
             <CTAButtons>
               <CTAButton to="/courses" className="primary">
                 <span>Начать обучение</span>
-                <span className="icon"></span>
               </CTAButton>
               <CTAButton to="/about" className="secondary">
                 <span>Узнать больше</span>
-                <span className="icon"></span>
               </CTAButton>
             </CTAButtons>
           </TextContent>
@@ -477,7 +469,6 @@ const Home = () => {
         <FeaturesGrid>
           {features.map((feature, index) => (
             <FeatureCard key={index} delay={feature.delay}>
-              <FeatureIcon>{feature.icon}</FeatureIcon>
               <FeatureTitle>{feature.title}</FeatureTitle>
               <FeatureDescription>{feature.description}</FeatureDescription>
             </FeatureCard>

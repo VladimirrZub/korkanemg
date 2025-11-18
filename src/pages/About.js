@@ -12,10 +12,6 @@ const slideUp = keyframes`
   }
 `;
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-`;
 
 const AboutContainer = styled.div`
   min-height: 100vh;
@@ -101,11 +97,7 @@ const MissionCard = styled.div`
   }
 `;
 
-const MissionIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  animation: ${float} 4s ease-in-out infinite;
-`;
+
 
 const MissionTitle = styled.h3`
   font-size: 1.4rem;
@@ -142,18 +134,7 @@ const TeamCard = styled.div`
   }
 `;
 
-const TeamAvatar = styled.div`
-  width: 100px;
-  height: 100px;
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
-`;
+
 
 const TeamName = styled.h3`
   font-size: 1.3rem;
@@ -215,19 +196,16 @@ const StatLabel = styled.div`
 const About = () => {
   const missionItems = [
     {
-      icon: '',
       title: 'Инновации в образовании',
       description: 'Мы внедряем самые современные технологии и методики обучения',
       delay: '0s'
     },
     {
-      icon: '',
       title: 'Практические знания',
       description: 'Все курсы построены на реальных кейсах и практических заданиях',
       delay: '0.1s'
     },
     {
-      icon: '',
       title: 'Поддержка студентов',
       description: 'Каждому студенту обеспечиваем персональное сопровождение',
       delay: '0.2s'
@@ -239,21 +217,18 @@ const About = () => {
       name: 'Анна Петрова',
       role: 'Основатель & CEO',
       bio: '15+ лет в IT-образовании, экс-руководитель образовательных программ',
-      emoji: '',
       delay: '0s'
     },
     {
       name: 'Максим Иванов',
       role: 'CTO',
       bio: 'Fullstack разработчик с 10-летним опытом, эксперт в e-learning',
-      emoji: '',
       delay: '0.1s'
     },
     {
       name: 'Елена Смирнова',
       role: 'Head of Education',
       bio: 'Педагог с 12-летним стажем, специалист по дистанционному обучению',
-      emoji: '',
       delay: '0.2s'
     }
   ];
@@ -288,7 +263,6 @@ const About = () => {
         <MissionGrid>
           {missionItems.map((item, index) => (
             <MissionCard key={index} delay={item.delay}>
-              <MissionIcon>{item.icon}</MissionIcon>
               <MissionTitle>{item.title}</MissionTitle>
               <MissionDescription>{item.description}</MissionDescription>
             </MissionCard>
@@ -318,7 +292,6 @@ const About = () => {
         <TeamGrid>
           {teamMembers.map((member, index) => (
             <TeamCard key={index} delay={member.delay}>
-              <TeamAvatar>{member.emoji}</TeamAvatar>
               <TeamName>{member.name}</TeamName>
               <TeamRole>{member.role}</TeamRole>
               <TeamBio>{member.bio}</TeamBio>

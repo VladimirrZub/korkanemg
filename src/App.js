@@ -9,14 +9,12 @@ import Preloader from './components/layout/Preloader';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 
-// Скелетоны
 import SkeletonHome from './components/skeletons/SkeletonHome';
 import SkeletonCourses from './components/skeletons/SkeletonCourses';
 import SkeletonAbout from './components/skeletons/SkeletonAbout';
 import SkeletonReviews from './components/skeletons/SkeletonReviews';
 import SkeletonContacts from './components/skeletons/SkeletonContacts';
 
-// Lazy loading для страниц
 const Home = React.lazy(() => import('./pages/Home'));
 const Courses = React.lazy(() => import('./pages/Courses'));
 const About = React.lazy(() => import('./pages/About'));

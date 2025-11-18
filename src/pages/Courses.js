@@ -337,8 +337,7 @@ const allCourses = [
     students: 1250,
     price: 29900,
     originalPrice: 39900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 2,
@@ -349,8 +348,7 @@ const allCourses = [
     students: 2100,
     price: 31900,
     originalPrice: 41900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
   {
     id: 3,
@@ -361,8 +359,7 @@ const allCourses = [
     students: 630,
     price: 38900,
     originalPrice: 48900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
   {
     id: 4,
@@ -373,8 +370,7 @@ const allCourses = [
     students: 1800,
     price: 34900,
     originalPrice: 44900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
   {
     id: 5,
@@ -385,8 +381,7 @@ const allCourses = [
     students: 950,
     price: 41900,
     originalPrice: 51900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
   {
     id: 6,
@@ -397,8 +392,7 @@ const allCourses = [
     students: 870,
     price: 27900,
     originalPrice: 37900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 7,
@@ -409,8 +403,7 @@ const allCourses = [
     students: 1100,
     price: 32900,
     originalPrice: 42900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
   {
     id: 8,
@@ -421,8 +414,7 @@ const allCourses = [
     students: 720,
     price: 36900,
     originalPrice: 46900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
   {
     id: 9,
@@ -433,8 +425,7 @@ const allCourses = [
     students: 540,
     price: 24900,
     originalPrice: 34900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 10,
@@ -445,8 +436,7 @@ const allCourses = [
     students: 680,
     price: 38900,
     originalPrice: 48900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
 
  
@@ -459,8 +449,7 @@ const allCourses = [
     students: 890,
     price: 34900,
     originalPrice: 44900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 12,
@@ -471,8 +460,7 @@ const allCourses = [
     students: 1250,
     price: 29900,
     originalPrice: 39900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 13,
@@ -483,8 +471,7 @@ const allCourses = [
     students: 480,
     price: 37900,
     originalPrice: 47900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
   {
     id: 14,
@@ -495,8 +482,7 @@ const allCourses = [
     students: 320,
     price: 41900,
     originalPrice: 51900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
   {
     id: 15,
@@ -507,8 +493,7 @@ const allCourses = [
     students: 290,
     price: 45900,
     originalPrice: 55900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
   {
     id: 16,
@@ -519,8 +504,7 @@ const allCourses = [
     students: 410,
     price: 32900,
     originalPrice: 42900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
 
   
@@ -533,8 +517,7 @@ const allCourses = [
     students: 1560,
     price: 25900,
     originalPrice: 35900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
   {
     id: 18,
@@ -545,8 +528,7 @@ const allCourses = [
     students: 1340,
     price: 22900,
     originalPrice: 32900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 19,
@@ -557,8 +539,7 @@ const allCourses = [
     students: 980,
     price: 28900,
     originalPrice: 38900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
   {
     id: 20,
@@ -569,8 +550,7 @@ const allCourses = [
     students: 760,
     price: 24900,
     originalPrice: 34900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 21,
@@ -581,8 +561,7 @@ const allCourses = [
     students: 520,
     price: 19900,
     originalPrice: 29900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 22,
@@ -593,8 +572,7 @@ const allCourses = [
     students: 430,
     price: 33900,
     originalPrice: 43900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
 
   {
@@ -606,8 +584,7 @@ const allCourses = [
     students: 740,
     price: 27900,
     originalPrice: 37900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
   {
     id: 24,
@@ -618,8 +595,7 @@ const allCourses = [
     students: 380,
     price: 35900,
     originalPrice: 45900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
   {
     id: 25,
@@ -642,8 +618,7 @@ const allCourses = [
     students: 210,
     price: 31900,
     originalPrice: 41900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
 
 
@@ -656,8 +631,7 @@ const allCourses = [
     students: 670,
     price: 34900,
     originalPrice: 44900,
-    level: 'Средний',
-    emoji: ''
+    level: 'Средний'
   },
   {
     id: 28,
@@ -668,8 +642,7 @@ const allCourses = [
     students: 540,
     price: 26900,
     originalPrice: 36900,
-    level: 'Начальный',
-    emoji: ''
+    level: 'Начальный'
   },
   {
     id: 29,
@@ -680,8 +653,7 @@ const allCourses = [
     students: 320,
     price: 38900,
     originalPrice: 48900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   },
   {
     id: 30,
@@ -692,8 +664,7 @@ const allCourses = [
     students: 480,
     price: 41900,
     originalPrice: 51900,
-    level: 'Продвинутый',
-    emoji: ''
+    level: 'Продвинутый'
   }
 ];
 
@@ -777,7 +748,6 @@ const Courses = () => {
             {visibleCourses.map((course, index) => (
               <CourseCard key={course.id} delay={`${0.5 + (index % 6) * 0.1}s`}>
                 <CourseImage category={course.category}>
-                  <div>{course.emoji}</div>
                   <CourseBadge>{course.level}</CourseBadge>
                 </CourseImage>
                 
@@ -788,10 +758,10 @@ const Courses = () => {
                   
                   <CourseMeta>
                     <div className="meta-item">
-                      {course.duration}
+                      ⏱️ {course.duration}
                     </div>
                     <div className="meta-item">
-                      {course.students.toLocaleString()}
+                      👥 {course.students.toLocaleString()}
                     </div>
                   </CourseMeta>
                   

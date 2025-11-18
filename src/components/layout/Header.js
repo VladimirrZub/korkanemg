@@ -296,6 +296,17 @@ const Header = () => {
       });
     }
   };
+
+  const handleTextClick = (e) => {
+    if ( location.pathname === '/courses' || location.pathname === '/about' || location.pathname === '/reviews' || location.pathname === '/contacts') {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const navItems = [
     { path: '/courses', text: 'Курсы' },
     { path: '/about',  text: 'О нас' },
@@ -307,13 +318,13 @@ const Header = () => {
     <>
       <HeaderContainer>
         <Nav>
-          <Logo to="/"  onClick={handleLogoClick}>
+          <Logo to="/" onClick={handleLogoClick}>
             <LogoText>
               <div className="main">Корочки.есть</div>
             </LogoText>
           </Logo>
 
-          <NavLinks>
+          <NavLinks onClick={handleTextClick}>
             {navItems.map((item) => (
               <NavLink
                 key={item.path}

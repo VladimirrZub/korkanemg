@@ -12,11 +12,6 @@ const slideUp = keyframes`
   }
 `;
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-`;
-
 const ReviewsContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
@@ -166,18 +161,6 @@ const ReviewHeader = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-const ReviewerAvatar = styled.div`
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-right: 1rem;
-  animation: ${float} 4s ease-in-out infinite;
-`;
 
 const ReviewerInfo = styled.div`
   flex: 1;
@@ -271,8 +254,7 @@ const Reviews = () => {
       category: 'Программирование',
       rating: 5,
       date: '15.12.2024',
-      text: 'Прошел курс Fullstack JavaScript и уже через 2 месяца нашел работу джуном! Преподаватели - настоящие профессионалы, много практики и поддержки.',
-      emoji: ''
+      text: 'Прошел курс Fullstack JavaScript и уже через 2 месяца нашел работу джуном! Преподаватели - настоящие профессионалы, много практики и поддержки.'
     },
     {
       id: 2,
@@ -281,8 +263,7 @@ const Reviews = () => {
       category: 'Дизайн',
       rating: 5,
       date: '10.12.2024',
-      text: 'Отличный курс для начинающих дизайнеров. Все очень структурированно, много реальных кейсов. Преподаватель всегда на связи и помогает.',
-      emoji: ''
+      text: 'Отличный курс для начинающих дизайнеров. Все очень структурированно, много реальных кейсов. Преподаватель всегда на связи и помогает.'
     },
     {
       id: 3,
@@ -291,8 +272,7 @@ const Reviews = () => {
       category: 'Маркетинг',
       rating: 4,
       date: '05.12.2024',
-      text: 'Очень полезный курс, много практических инструментов. Немного не хватило времени на некоторые темы, но в целом очень довольна.',
-      emoji: ''
+      text: 'Очень полезный курс, много практических инструментов. Немного не хватило времени на некоторые темы, но в целом очень довольна.'
     },
     {
       id: 4,
@@ -301,8 +281,7 @@ const Reviews = () => {
       category: 'Программирование',
       rating: 5,
       date: '28.11.2024',
-      text: 'Курс превзошел ожидания! Отличный баланс теории и практики. Теперь уверенно работаю с данными и даже автоматизировал процессы на работе.',
-      emoji: ''
+      text: 'Курс превзошел ожидания! Отличный баланс теории и практики. Теперь уверенно работаю с данными и даже автоматизировал процессы на работе.'
     },
     {
       id: 5,
@@ -311,8 +290,7 @@ const Reviews = () => {
       category: 'Менеджмент',
       rating: 5,
       date: '20.11.2024',
-      text: 'Идеальный курс для систематизации знаний в управлении проектами. Очень пригодились шаблоны документов и методики планирования.',
-      emoji: ''
+      text: 'Идеальный курс для систематизации знаний в управлении проектами. Очень пригодились шаблоны документов и методики планирования.'
     },
     {
       id: 6,
@@ -321,8 +299,7 @@ const Reviews = () => {
       category: 'Программирование',
       rating: 4,
       date: '15.11.2024',
-      text: 'Хороший интенсивный курс. Много практики, интересные проекты. Преподаватель всегда помогает с сложными моментами. Рекомендую!',
-      emoji: ''
+      text: 'Хороший интенсивный курс. Много практики, интересные проекты. Преподаватель всегда помогает с сложными моментами. Рекомендую!'
     }
   ];
 
@@ -381,7 +358,6 @@ const Reviews = () => {
         {filteredReviews.map((review, index) => (
           <ReviewCard key={review.id} delay={`${0.6 + index * 0.1}s`}>
             <ReviewHeader>
-              <ReviewerAvatar>{review.emoji}</ReviewerAvatar>
               <ReviewerInfo>
                 <h3>{review.name}</h3>
                 <div className="course">{review.course}</div>
