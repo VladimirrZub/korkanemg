@@ -181,7 +181,6 @@ const FormGroup = styled.div`
     }
   }
   
-  /* Стили для выпадающего списка */
   select {
     appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366F1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -313,13 +312,10 @@ const FAQItem = styled.div`
   }
 `;
 
-// Компонент для форматирования телефона
 const PhoneInput = ({ value, onChange, ...props }) => {
   const formatPhoneNumber = (value) => {
-    // Удаляем все нецифровые символы
     const numbers = value.replace(/\D/g, '');
     
-    // Форматируем номер
     if (numbers.length === 0) return '';
     if (numbers.length <= 1) return `+7 (${numbers}`;
     if (numbers.length <= 4) return `+7 (${numbers.slice(1, 4)}`;
@@ -350,11 +346,9 @@ const PhoneInput = ({ value, onChange, ...props }) => {
   );
 };
 
-// Компонент для выпадающего списка с автоматическим сбросом фокуса
 const CustomSelect = ({ value, onChange, children, ...props }) => {
   const handleChange = (e) => {
     onChange(e);
-    // Принудительно снимаем фокус после выбора
     e.target.blur();
   };
 
@@ -394,7 +388,6 @@ const Contacts = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Имитация отправки формы
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     setIsSubmitting(false);
