@@ -30,18 +30,9 @@ const slideUp = keyframes`
   }
 `;
 
-
-const gradientShift = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
-
 const HomeContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
-  background-size: 400% 400%;
-  animation: ${gradientShift} 15s ease infinite;
   position: relative;
   overflow: hidden;
 `;
