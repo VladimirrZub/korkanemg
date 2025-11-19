@@ -700,13 +700,11 @@ const Courses = () => {
                   <CourseCategory>{course.category}</CourseCategory>
                   <CourseTitle>{course.title}</CourseTitle>
                   <CourseDescription>{course.description}</CourseDescription>
-                  
                   <CourseMeta>
                     <div className="meta-item">
                       ⏱️ {course.duration}
                     </div>
                   </CourseMeta>
-                  
                   <CoursePrice>
                     <div className="current">{course.price.toLocaleString()} ₽</div>
                     {course.originalPrice > course.price && (
