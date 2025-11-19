@@ -168,52 +168,6 @@ const CourseCard = styled.div`
     }
   }
 `;
-
-const CourseImage = styled.div`
-  height: 200px;
-  background: ${props => {
-    switch (props.category) {
-      case 'Программирование': return `linear-gradient(135deg, #111827 0%, #6B7280 100%)`;
-      case 'Дизайн': return `linear-gradient(135deg, #111827 0%, #6B7280 100%)`;
-      case 'Маркетинг': return `linear-gradient(135deg, #111827 0%, #6B7280 100%)`;
-      case 'Менеджмент': return `linear-gradient(135deg, #111827 0%, #6B7280 100%)`;
-      case 'Аналитика': return `linear-gradient(135deg, #111827 0%, #6B7280 100%)`;
-      default: return `linear-gradient(135deg, #111827 0%, #6B7280 100%)`;
-    }
-  }};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  transition: transform 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(0,0,0,0.1), transparent);
-  }
-`;
-
-const CourseBadge = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 0.4rem 0.8rem;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
 const CourseContent = styled.div`
   padding: 1.5rem;
 `;
@@ -687,9 +641,7 @@ const Courses = () => {
     visibleItems: visibleCourses,
     loadMoreRef,
     loading,
-    hasMore,
-    loadedCount,
-    totalCount
+    hasMore
   } = useInfiniteScroll(filteredCourses, 6);
 
   const calculateDiscount = (price, originalPrice) => {
@@ -731,9 +683,6 @@ const Courses = () => {
         <div className="count">
           Найдено: <span className="highlight">{filteredCourses.length} курсов</span>
         </div>
-        <div className="count">
-          Показано: <span className="highlight">{loadedCount}</span> из {totalCount}
-        </div>
       </ResultsInfo>
 
       {filteredCourses.length === 0 ? (
@@ -747,10 +696,6 @@ const Courses = () => {
           <CoursesGrid>
             {visibleCourses.map((course, index) => (
               <CourseCard key={course.id} delay={`${0.5 + (index % 6) * 0.1}s`}>
-                <CourseImage category={course.category}>
-                  <CourseBadge>{course.level}</CourseBadge>
-                </CourseImage>
-                
                 <CourseContent>
                   <CourseCategory>{course.category}</CourseCategory>
                   <CourseTitle>{course.title}</CourseTitle>
@@ -759,9 +704,6 @@ const Courses = () => {
                   <CourseMeta>
                     <div className="meta-item">
                       ⏱️ {course.duration}
-                    </div>
-                    <div className="meta-item">
-                      👥 {course.students.toLocaleString()}
                     </div>
                   </CourseMeta>
                   
