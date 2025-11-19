@@ -243,12 +243,6 @@ const StatCard = styled.div`
   }
 `;
 
-const StatIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  animation: ${float} 4s ease-in-out infinite;
-`;
-
 const StatNumber = styled.div`
   font-size: 3rem;
   font-weight: 800;
@@ -373,19 +367,16 @@ const Home = () => {
 
   const features = [
     {
-      icon: '',
       title: 'Инновационное обучение',
       description: 'Современные методики и технологии для максимальной эффективности образовательного процесса',
       delay: '0s'
     },
     {
-      icon: '',
       title: 'Премиум качество',
       description: 'Только актуальные знания от практикующих экспертов с реальным опытом работы',
       delay: '0.1s'
     },
     {
-      icon: '',
       title: 'Быстрый результат',
       description: 'Интенсивные программы, позволяющие быстро освоить новые навыки и начать применять их на практике',
       delay: '0.2s'
@@ -444,7 +435,6 @@ const Home = () => {
         <StatsGrid>
           {stats.map((stat, index) => (
             <StatCard key={index} delay={stat.delay}>
-              <StatIcon>{stat.icon}</StatIcon>
               <StatNumber>{stat.number}</StatNumber>
               <StatLabel>{stat.label}</StatLabel>
             </StatCard>
