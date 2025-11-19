@@ -540,9 +540,7 @@ const Contacts = () => {
               onChange={handleChange}
               required
             >
-              <option value="" disabled>
-                Выберите тему
-              </option>
+              <option value="" disabled>Выберите тему</option>
               <option value="course">Вопрос по курсу</option>
               <option value="payment">Оплата и документы</option>
               <option value="technical">Техническая поддержка</option>
