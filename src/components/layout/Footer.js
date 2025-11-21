@@ -179,19 +179,15 @@ const Footer = () => {
           <h3>Контакты</h3>
           <ContactInfo>
             <div className="contact-item">
-              <span className="icon">📧</span>
               <span>info@korochki.est</span>
             </div>
             <div className="contact-item">
-              <span className="icon">📞</span>
               <span>1 (123) 555-55-55</span>
             </div>
             <div className="contact-item">
-              <span className="icon">📍</span>
               <span>Великий Ногвород</span>
             </div>
             <div className="contact-item">
-              <span className="icon">🕒</span>
               <span>Пн-Пт: 9:00-18:00</span>
             </div>
           </ContactInfo>

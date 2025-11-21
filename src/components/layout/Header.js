@@ -367,7 +367,6 @@ const Header = () => {
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <span>{item.icon}</span>
                 {item.text}
               </MobileNavItem>
             ))}
