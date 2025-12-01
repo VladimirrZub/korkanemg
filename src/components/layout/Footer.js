@@ -147,7 +147,7 @@ const Footer = () => {
           </Logo>
           <p>
             Ведущая платформа дополнительного профессионального образования. 
-            Помогаем освоить востребованные навыки и построить успешную карьеру в IT.
+            Помогаем освоить востребованные навыки и построить успешную карьеру.
           </p>
         </FooterSection>
 
@@ -169,9 +169,6 @@ const Footer = () => {
             <Link to="/about">О нас</Link>
             <Link to="/reviews">Отзывы</Link>
             <Link to="/contacts">Контакты</Link>
-            <Link to="/careers">Карьера</Link>
-            <Link to="/blog">Блог</Link>
-            <Link to="/news">Новости</Link>
           </FooterLinks>
         </FooterSection>
 

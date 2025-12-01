@@ -702,7 +702,7 @@ const Courses = () => {
                   <CourseDescription>{course.description}</CourseDescription>
                   <CourseMeta>
                     <div className="meta-item">
-                      ⏱️ {course.duration}
+                      {course.duration}
                     </div>
                   </CourseMeta>
                   <CoursePrice>
