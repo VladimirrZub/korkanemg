@@ -133,6 +133,8 @@ const CTAButtons = styled.div`
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
+  justify-content: center;
+  margin-right: 100px;
 `;
 
 const CTAButton = styled(Link)`
@@ -417,9 +419,6 @@ const Home = () => {
             <CTAButtons>
               <CTAButton to="/courses" className="primary">
                 <span>Начать обучение</span>
-              </CTAButton>
-              <CTAButton to="/about" className="secondary">
-                <span>Узнать больше</span>
               </CTAButton>
             </CTAButtons>
           </TextContent>
