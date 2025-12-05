@@ -14,12 +14,16 @@ import SkeletonCourses from './components/skeletons/SkeletonCourses';
 import SkeletonAbout from './components/skeletons/SkeletonAbout';
 import SkeletonReviews from './components/skeletons/SkeletonReviews';
 import SkeletonContacts from './components/skeletons/SkeletonContacts';
+import SkeletonLogin from './components/skeletons/SkeletonLogin';
+import SkeletonRegister from './components/skeletons/SkeletonRegister';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Courses = React.lazy(() => import('./pages/Courses'));
 const About = React.lazy(() => import('./pages/About'));
 const Reviews = React.lazy(() => import('./pages/Reviews'));
 const Contacts = React.lazy(() => import('./pages/Contacts'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Register = React.lazy(() => import('./pages/Register'));
 
 const MainContent = styled.main`
   min-height: 100vh;
@@ -65,6 +69,8 @@ function App() {
                 <Route path="/about" element={<SkeletonAbout />} />
                 <Route path="/reviews" element={<SkeletonReviews />} />
                 <Route path="/contacts" element={<SkeletonContacts />} />
+                <Route path="/login" element={<SkeletonLogin />} />
+                <Route path="/register" element={<SkeletonRegister />} />
               </Routes>
             }>
               <Routes>
@@ -73,6 +79,8 @@ function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/reviews" element={<Reviews />} />
                 <Route path="/contacts" element={<Contacts />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
               </Routes>
             </Suspense>
           </MainContent>

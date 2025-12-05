@@ -134,7 +134,7 @@ const AuthSection = styled.div`
   }
 `;
 
-const AuthButton = styled.button`
+const AuthButton = styled(Link)`
   padding: 0.75rem 1.5rem;
   border-radius: 25px;
   font-weight: 600;
@@ -298,7 +298,7 @@ const Header = () => {
   };
 
   const handleTextClick = (e) => {
-    if ( location.pathname === '/courses' || location.pathname === '/about' || location.pathname === '/reviews' || location.pathname === '/contacts') {
+    if ( location.pathname === '/courses' || location.pathname === '/about' || location.pathname === '/reviews' || location.pathname === '/contacts' || location.pathname === '/login' || location.pathname === '/register'  ) {
       e.preventDefault();
       window.scrollTo({
         top: 0,
@@ -336,9 +336,9 @@ const Header = () => {
             ))}
           </NavLinks>
 
-          <AuthSection>
-            <AuthButton className="login">Войти</AuthButton>
-            <AuthButton className="register">Регистрация</AuthButton>
+          <AuthSection >
+            <AuthButton to="/login" className="login">Войти</AuthButton>
+            <AuthButton to="/register" className="register">Регистрация</AuthButton>
           </AuthSection>
 
           <MobileMenuButton onClick={() => setMobileMenuOpen(true)}>
