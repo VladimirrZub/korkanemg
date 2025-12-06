@@ -405,13 +405,13 @@ const Contacts = () => {
 
   const contactItems = [
     {
-      icon: '📞',
+      icon: '',
       title: 'Телефон',
       content: ['1 (123) 555-55-55', 'Бесплатный звонок по России'],
       delay: '0s'
     },
     {
-      icon: '📧',
+      icon: '',
       title: 'Email',
       content: [
         'info@korochki.est - общие вопросы',
@@ -420,7 +420,7 @@ const Contacts = () => {
       delay: '0.1s'
     },
     {
-      icon: '📍',
+      icon: '',
       title: 'Адрес',
       content: [
         'Великий Новгород',
@@ -429,7 +429,7 @@ const Contacts = () => {
       delay: '0.2s'
     },
     {
-      icon: '🕒',
+      icon: '',
       title: 'Время работы',
       content: [
         'Пн-Пт: 9:00 - 18:00',
