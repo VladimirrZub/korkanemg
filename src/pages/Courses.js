@@ -14,6 +14,16 @@ const slideUp = keyframes`
   }
 `;
 
+
+const particleFloat = keyframes`
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(10px, -15px) rotate(90deg); }
+  50% { transform: translate(-5px, -25px) rotate(180deg); }
+  75% { transform: translate(-15px, -10px) rotate(270deg); }
+`;
+
+
+
 const CoursesContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
@@ -104,6 +114,31 @@ const CategoryButton = styled.button`
     `}
   }
 `;
+
+
+
+const ParticlesBackground = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+`;
+
+const Particle = styled.div`
+  position: absolute;
+  width: ${props => props.size || '4px'};
+  height: ${props => props.size || '4px'};
+  background: rgba(99, 102, 241, ${props => props.opacity || '0.6'});
+  border-radius: 50%;
+  animation: ${particleFloat} ${props => props.duration || '20s'} linear infinite;
+  top: ${props => props.top}%;
+  left: ${props => props.left}%;
+  animation-delay: ${props => props.delay || '0s'};
+`;
+
 
 const ResultsInfo = styled.div`
   max-width: 1200px;
@@ -622,6 +657,37 @@ const allCourses = [
   }
 ];
 
+
+
+
+const generateParticles = () => {
+  const particles = [];
+  for (let i = 0; i < 40; i++) {
+    particles.push({
+      id: i,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      size: `${Math.random() * 3 + 2}px`,
+      opacity: Math.random() * 0.4 + 0.3,
+      duration: `${Math.random() * 15 + 10}s`,
+      delay: `${Math.random() * 5}s`
+    });
+  }
+  return particles;
+};
+const Particles = React.memo(() => {
+  const particles = useMemo(() => generateParticles(), []);
+  
+  return (
+    <ParticlesBackground>
+      {particles.map(particle => (
+        <Particle key={particle.id} {...particle} />
+      ))}
+    </ParticlesBackground>
+  );
+});
+
+
 const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [searchQuery, setSearchQuery] = useState('');
@@ -650,6 +716,8 @@ const Courses = () => {
 
   return (
     <CoursesContainer>
+      
+      <Particles />
       <PageHeader>
         <h1>Все курсы</h1>
         <p>Выберите направление и начните свой путь в IT с лучшими экспертами</p>
