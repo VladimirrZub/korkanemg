@@ -32,7 +32,7 @@ const ParticlesBackground = styled.div`
 `;
 
 const Particle = styled.div`
-  position: absolute;
+  position: fixed;
   width: ${props => props.size || '4px'};
   height: ${props => props.size || '4px'};
   background: rgba(99, 102, 241, ${props => props.opacity || '0.6'});
