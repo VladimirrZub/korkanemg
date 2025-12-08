@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import { LoadMoreLoader } from '../components/common/Loader';
@@ -49,8 +49,6 @@ const glow = keyframes`
     box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
   }
 `;
-
-// Модальное окно оплаты
 const PaymentModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -73,7 +71,7 @@ const PaymentModal = styled.div`
   border-radius: 30px;
   padding: 3rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 700px; /* Увеличил ширину для двух колонок */
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
     0 30px 100px rgba(0, 0, 0, 0.6),
@@ -92,6 +90,109 @@ const PaymentModal = styled.div`
     height: 4px;
     background: linear-gradient(90deg, #6366F1, #8B5CF6);
   }
+`;
+
+const ModalContent = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+`;
+
+const LeftColumn = styled.div`
+  padding-right: 1.5rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+  @media (max-width: 768px) {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 2rem;
+  }
+`;
+
+const RightColumn = styled.div`
+  padding-left: 1.5rem;
+
+  @media (max-width: 768px) {
+    padding-left: 0;
+  }
+`;
+
+const CourseInfoSidebar = styled.div`
+  text-align: left;
+  margin-bottom: 2rem;
+`;
+
+const CourseTitleSidebar = styled.h2`
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+`;
+
+const CourseCategorySidebar = styled.div`
+  display: inline-block;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366F1;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+`;
+
+const PriceDisplay = styled.div`
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const CurrentPrice = styled.div`
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #6366F1;
+  margin-bottom: 0.5rem;
+`;
+
+const OriginalPrice = styled.div`
+  font-size: 1.2rem;
+  color: #666;
+  text-decoration: line-through;
+  margin-bottom: 0.5rem;
+`;
+
+const DiscountBadge = styled.div`
+  background: #F59E0B;
+  color: #000;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: inline-block;
+`;
+
+const ModalHeaderCompact = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+  grid-column: 1 / -1; /* Занимает обе колонки */
+`;
+
+const ModalTitleCompact = styled.h2`
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
 `;
 
 const CloseButton = styled.button`
@@ -117,47 +218,11 @@ const CloseButton = styled.button`
   }
 `;
 
-const ModalHeader = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
-`;
 
-const ModalTitle = styled.h2`
-  font-size: 2.2rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-`;
 
 const ModalSubtitle = styled.p`
   color: #a0a0a0;
   font-size: 1.1rem;
-`;
-
-const CourseInfo = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const CourseName = styled.h3`
-  color: white;
-  font-size: 1.3rem;
-  margin-bottom: 0.5rem;
-  font-weight: 700;
-`;
-
-const CourseDetails = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: #a0a0a0;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
 `;
 
 
@@ -291,44 +356,6 @@ const PhoneInputContainer = styled.div`
     padding-left: 20px;
   }
 `;
-
-const CashPaymentInfo = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  
-  h4 {
-    color: white;
-    margin-bottom: 0.8rem;
-    font-size: 1.1rem;
-  }
-  
-  p {
-    color: #a0a0a0;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin-bottom: 0.5rem;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-  
-  .address {
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    border-radius: 10px;
-    padding: 1rem;
-    margin-top: 0.8rem;
-    
-    strong {
-      color: #6366F1;
-    }
-  }
-`;
-
 
 
 
@@ -995,12 +1022,34 @@ const Particles = React.memo(() => {
     </ParticlesBackground>
   );
 });
-
 const PaymentModalComponent = ({ isOpen, onClose, course }) => {
   const [selectedMethod, setSelectedMethod] = useState('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+
+  useEffect(() => {
+  if (isOpen) {
+    // Запоминаем текущую позицию скролла
+    const scrollY = window.scrollY;
+    // Фиксируем body
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      // Восстанавливаем скролл при закрытии
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollY);
+    };
+  }
+}, [isOpen]);
+  
 
   const paymentMethods = [
     {
@@ -1028,10 +1077,7 @@ const PaymentModalComponent = ({ isOpen, onClose, course }) => {
     return `+7 (${numbers.slice(1, 4)}) ${numbers.slice(4, 7)}-${numbers.slice(7, 9)}-${numbers.slice(9, 11)}`;
   };
 
- 
-
   const handlePayment = async () => {
-
     setIsProcessing(true);
     
     setTimeout(() => {
@@ -1046,9 +1092,11 @@ const PaymentModalComponent = ({ isOpen, onClose, course }) => {
   };
 
   if (!isOpen) return null;
-const calculateDiscountN = (price, originalPrice) => {
+  
+  const calculateDiscountN = (price, originalPrice) => {
     return Math.round((1 - price / originalPrice) * 100);
   };
+
   return (
     <PaymentModalOverlay $isOpen={isOpen} onClick={onClose}>
       <PaymentModal onClick={(e) => e.stopPropagation()}>
@@ -1056,146 +1104,174 @@ const calculateDiscountN = (price, originalPrice) => {
         
         {isSuccess ? (
           <>
-            <ModalHeader>
-              <ModalTitle>Заявка оформлена!</ModalTitle>
+            <ModalHeaderCompact>
+              <ModalTitleCompact>Заявка оформлена!</ModalTitleCompact>
               <ModalSubtitle>Мы свяжемся с вами в ближайшее время</ModalSubtitle>
-            </ModalHeader>
+            </ModalHeaderCompact>
             
             <SuccessMessage>
               <h4> Спасибо за заявку!</h4>
               <p>
                 {selectedMethod === 'phone' 
                   ? 'Наш менеджер свяжется с вами в течение 15 минут для подтверждения оплаты и активации доступа к курсу.'
-                  : 'Приходите в наш офис для оплаты наличными. Доступ к курсу будет открыт сразу после оплаты.'}
+                  : 'Наш менеджер свяжется с вами в течение 15 минут для оплаты и активации доступа к курсу.'}
               </p>
             </SuccessMessage>
             
-            <CourseInfo>
-              <CourseName>{course?.title || 'Название курса'}</CourseName>
-              <CourseDetails>
-                <span>Категория: {course?.category || 'Программирование'}</span>
-                <span>Стоимость: {course?.price?.toLocaleString() || '0'} ₽</span>
-              </CourseDetails>
-            </CourseInfo>
+            <ModalContent>
+              <LeftColumn>
+                <CourseInfoSidebar>
+                  <CourseCategorySidebar>
+                    {course?.category || 'Программирование'}
+                  </CourseCategorySidebar>
+                  <CourseTitleSidebar>
+                    {course?.title || 'Название курса'}
+                  </CourseTitleSidebar>
+                  
+                  <PriceDisplay>
+                    <CurrentPrice>
+                      {course?.price?.toLocaleString() || '0'} ₽
+                    </CurrentPrice>
+                    {course?.originalPrice > course?.price && (
+                      <>
+                        <OriginalPrice>
+                          {course?.originalPrice?.toLocaleString() || '0'} ₽
+                        </OriginalPrice>
+                        <DiscountBadge>
+                          -{calculateDiscountN(course?.price || 0, course?.originalPrice || 0)}%
+                        </DiscountBadge>
+                      </>
+                    )}
+                  </PriceDisplay>
+                </CourseInfoSidebar>
+              </LeftColumn>
+              
+              <RightColumn>
+                <p style={{ color: '#a0a0a0', marginBottom: '1rem' }}>
+                  Ваша заявка принята в обработку
+                </p>
+              </RightColumn>
+            </ModalContent>
           </>
         ) : (
           <>
-            <ModalHeader>
-              <ModalTitle>Оформление заявки</ModalTitle>
-            </ModalHeader>
+            <ModalHeaderCompact>
+              <ModalTitleCompact>Оформление заявки</ModalTitleCompact>
+              <ModalSubtitle>Выберите удобный способ оплаты</ModalSubtitle>
+            </ModalHeaderCompact>
 
-            <CourseInfo>
-              <CourseName>{course?.title || 'Название курса'}</CourseName>
-              <CourseDetails>
-                <span>Категория: {course?.category || 'Программирование'}</span>
-              </CourseDetails>
-            </CourseInfo>
-
-            <CoursePrice>
-                    <div className="current">{course.price.toLocaleString()} ₽</div>
-                    {course.originalPrice > course.price && (
+            <ModalContent>
+              {/* Левая колонка - информация о курсе и цена */}
+              <LeftColumn>
+                <CourseInfoSidebar>
+                  <CourseCategorySidebar>
+                    {course?.category || 'Программирование'}
+                  </CourseCategorySidebar>
+                  <CourseTitleSidebar>
+                    {course?.title || 'Название курса'}
+                  </CourseTitleSidebar>
+                  
+                  <PriceDisplay>
+                    <CurrentPrice>
+                      {course?.price?.toLocaleString() || '0'} ₽
+                    </CurrentPrice>
+                    {course?.originalPrice > course?.price && (
                       <>
-                        <div className="original">{course.originalPrice.toLocaleString()} ₽</div>
-                        <div className="discount">-{calculateDiscountN(course.price, course.originalPrice)}%</div>
+                        <OriginalPrice>
+                          {course?.originalPrice?.toLocaleString() || '0'} ₽
+                        </OriginalPrice>
+                        <DiscountBadge>
+                          -{calculateDiscountN(course?.price || 0, course?.originalPrice || 0)}%
+                        </DiscountBadge>
                       </>
                     )}
-                  </CoursePrice>
+                  </PriceDisplay>
+                </CourseInfoSidebar>
+              </LeftColumn>
 
-            <PaymentMethods>
-              <FormLabel>Способ оплаты</FormLabel>
-              {paymentMethods.map(method => (
-                <PaymentMethod
-                  key={method.id}
-                  $selected={selectedMethod === method.id}
-                  onClick={() => setSelectedMethod(method.id)}
+              {/* Правая колонка - форма оплаты */}
+              <RightColumn>
+                <PaymentMethods>
+                  <FormLabel>Способ оплаты</FormLabel>
+                  {paymentMethods.map(method => (
+                    <PaymentMethod
+                      key={method.id}
+                      $selected={selectedMethod === method.id}
+                      onClick={() => setSelectedMethod(method.id)}
+                    >
+                      <MethodInfo>
+                        <h4>{method.name}</h4>
+                        <p>{method.description}</p>
+                      </MethodInfo>
+                    </PaymentMethod>
+                  ))}
+                </PaymentMethods>
+
+                {selectedMethod === 'phone' ? (
+                  <PaymentForm>
+                    <FormGroup>
+                      <FormLabel>Номер телефона</FormLabel>
+                      <PhoneInputContainer>
+                        <FormInput
+                          type="tel"
+                          placeholder="+7 (___) ___-__-__"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+                          maxLength="16"
+                        />
+                      </PhoneInputContainer>
+                    </FormGroup>
+                  </PaymentForm>
+                ) : (
+                  <PaymentForm>
+                    
+
+                    <FormGroup>
+                      <FormLabel>Ваше имя</FormLabel>
+                      <FormInput
+                        type="text"
+                        placeholder="Иван Иванов"
+                      />
+                    </FormGroup>
+
+                    <FormGroup>
+                      <FormLabel>Номер телефона</FormLabel>
+                      <PhoneInputContainer>
+                        <FormInput
+                          type="tel"
+                          placeholder="(999) 123-45-67"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+                          maxLength="16"
+                        />
+                      </PhoneInputContainer>
+                    </FormGroup>
+                  </PaymentForm>
+                )}
+
+                <SubmitButton 
+                  onClick={handlePayment} 
+                  disabled={isProcessing || (selectedMethod === 'phone' && !phoneNumber)}
+                  $isCash={selectedMethod === 'cash'}
                 >
-                  <MethodInfo>
-                    <h4>{method.name}</h4>
-                    <p>{method.description}</p>
-                  </MethodInfo>
-                </PaymentMethod>
-              ))}
-            </PaymentMethods>
-
-            {selectedMethod === 'phone' ? (
-              <PaymentForm>
-                <FormGroup>
-                  <FormLabel>Номер телефона</FormLabel>
-                  <PhoneInputContainer>
-                    <FormInput
-                      type="tel"
-                      placeholder="+7 (___) ___-__-__"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
-                      maxLength="16"
-                    />
-                  </PhoneInputContainer>
-                </FormGroup>
-
-                
-
-                
-              </PaymentForm>
-            ) : (
-              <PaymentForm>
-                <CashPaymentInfo>
-                  <h4>Оплата наличными</h4>
-                  <p>Вы можете оплатить курс наличными в нашем офисе или курьеру при доставке материалов.</p>
-                  
-                  <div className="address">
-                    <p><strong>Адрес офиса:</strong></p>
-                    <p>г. Москва, ул. Тверская, д. 10, офис 305</p>
-                    <p><strong>График работы:</strong> Пн-Пт 10:00-19:00, Сб 11:00-17:00</p>
-                  </div>
-                </CashPaymentInfo>
-
-                <FormGroup>
-                  <FormLabel>Ваше имя</FormLabel>
-                  <FormInput
-                    type="text"
-                    placeholder="Иван Иванов"
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <FormLabel>Номер телефона</FormLabel>
-                  <PhoneInputContainer>
-                    <FormInput
-                      type="tel"
-                      placeholder="(999) 123-45-67"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
-                      maxLength="16"
-                    />
-                  </PhoneInputContainer>
-                </FormGroup>
-
-              </PaymentForm>
-            )}
-
-
-            <SubmitButton 
-              onClick={handlePayment} 
-              disabled={isProcessing || (selectedMethod === 'phone' && !phoneNumber)}
-              $isCash={selectedMethod === 'cash'}
-            >
-              {isProcessing ? (
-                <>
-                  <span>Отправка заявки...</span>
-                  <div style={{ width: '20px', height: '20px' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/>
-                      <path fill="currentColor" d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z">
-                        <animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12" repeatCount="indefinite"/>
-                      </path>
-                    </svg>
-                  </div>
-                </>
-              ) : (
-                selectedMethod === 'phone' ? 'Отправить заявку на оплату' : 'Оформить заявку наличными'
-              )}
-            </SubmitButton>
-
+                  {isProcessing ? (
+                    <>
+                      <span>Отправка заявки...</span>
+                      <div style={{ width: '20px', height: '20px' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                          <path fill="currentColor" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/>
+                          <path fill="currentColor" d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z">
+                            <animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12" repeatCount="indefinite"/>
+                          </path>
+                        </svg>
+                      </div>
+                    </>
+                  ) : (
+                    selectedMethod === 'phone' ? 'Отправить заявку на оплату' : 'Оформить заявку наличными'
+                  )}
+                </SubmitButton>
+              </RightColumn>
+            </ModalContent>
           </>
         )}
       </PaymentModal>
