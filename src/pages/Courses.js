@@ -14,6 +14,25 @@ const slideUp = keyframes`
   }
 `;
 
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const scaleIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
 
 const particleFloat = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -22,7 +41,347 @@ const particleFloat = keyframes`
   75% { transform: translate(-15px, -10px) rotate(270deg); }
 `;
 
+const glow = keyframes`
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
+  }
+`;
 
+// Модальное окно оплаты
+const PaymentModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(15px);
+  display: ${props => props.$isOpen ? 'flex' : 'none'};
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: ${fadeIn} 0.3s ease-out;
+  padding: 2rem;
+`;
+
+const PaymentModal = styled.div`
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(25px);
+  border-radius: 30px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 30px 100px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  animation: ${scaleIn} 0.4s ease-out;
+  z-index: 10000;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6366F1, #8B5CF6);
+  }
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: white;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  
+  &:hover {
+    background: rgba(99, 102, 241, 0.3);    
+  }
+`;
+
+const ModalHeader = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+const ModalTitle = styled.h2`
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+`;
+
+const ModalSubtitle = styled.p`
+  color: #a0a0a0;
+  font-size: 1.1rem;
+`;
+
+const CourseInfo = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const CourseName = styled.h3`
+  color: white;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+`;
+
+const CourseDetails = styled.div`
+  display: flex;
+  justify-content: space-between;
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+`;
+
+
+const CoursePrice = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  .current {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #6366F1;
+  }
+  
+  .original {
+    font-size: 1.2rem;
+    color: #666;
+    text-decoration: line-through;
+  }
+  
+  .discount {
+    background: #F59E0B;
+    color: #000;
+    padding: 0.3rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+`;
+
+
+const PaymentMethods = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const PaymentMethod = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid ${props => props.$selected ? '#6366F1' : 'rgba(255, 255, 255, 0.1)'};
+  border-radius: 15px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(99, 102, 241, 0.5);
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+
+const MethodInfo = styled.div`
+  flex: 1;
+  
+  h4 {
+    color: white;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  p {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+`;
+
+const PaymentForm = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const FormLabel = styled.label`
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #e0e0e0;
+  font-weight: 600;
+  font-size: 1rem;
+`;
+
+const FormInput = styled.input`
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  color: white;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  outline: none;
+  
+  &:focus {
+    border-color: #6366F1;
+    background: rgba(99, 102, 241, 0.05);
+    animation: ${glow} 2s infinite;
+  }
+  
+  &::placeholder {
+    color: #666;
+  }
+`;
+
+const PhoneInputContainer = styled.div`
+  position: relative;
+  
+  .country-code {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0a0a0;
+    font-weight: 600;
+  }
+  
+  input {
+    padding-left: 20px;
+  }
+`;
+
+const CashPaymentInfo = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  h4 {
+    color: white;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+  }
+  
+  p {
+    color: #a0a0a0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .address {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 0.8rem;
+    
+    strong {
+      color: #6366F1;
+    }
+  }
+`;
+
+
+
+
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 1.3rem;
+  background: ${props => props.$isCash ? 'linear-gradient(135deg, #10b981 0%, #34d399 100%)' : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'};
+  border: none;
+  border-radius: 15px;
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+const SuccessMessage = styled.div`
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 15px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  
+  h4 {
+    color: #10b981;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: #a0a0a0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+`;
 
 const CoursesContainer = styled.div`
   min-height: 100vh;
@@ -257,33 +616,6 @@ const CourseMeta = styled.div`
   }
 `;
 
-const CoursePrice = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  
-  .current {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #6366F1;
-  }
-  
-  .original {
-    font-size: 1.2rem;
-    color: #666;
-    text-decoration: line-through;
-  }
-  
-  .discount {
-    background: #F59E0B;
-    color: #000;
-    padding: 0.3rem 0.6rem;
-    border-radius: 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
-`;
 
 const EnrollButton = styled.button`
   width: 100%;
@@ -331,7 +663,6 @@ const allCourses = [
     students: 1250,
     price: 29900,
     originalPrice: 39900,
-    level: 'Начальный'
   },
   {
     id: 2,
@@ -342,7 +673,6 @@ const allCourses = [
     students: 2100,
     price: 31900,
     originalPrice: 41900,
-    level: 'Средний'
   },
   {
     id: 3,
@@ -353,7 +683,6 @@ const allCourses = [
     students: 630,
     price: 38900,
     originalPrice: 48900,
-    level: 'Продвинутый'
   },
   {
     id: 4,
@@ -364,7 +693,6 @@ const allCourses = [
     students: 1800,
     price: 34900,
     originalPrice: 44900,
-    level: 'Средний'
   },
   {
     id: 5,
@@ -375,7 +703,6 @@ const allCourses = [
     students: 950,
     price: 41900,
     originalPrice: 51900,
-    level: 'Продвинутый'
   },
   {
     id: 6,
@@ -386,7 +713,6 @@ const allCourses = [
     students: 870,
     price: 27900,
     originalPrice: 37900,
-    level: 'Начальный'
   },
   {
     id: 7,
@@ -397,7 +723,6 @@ const allCourses = [
     students: 1100,
     price: 32900,
     originalPrice: 42900,
-    level: 'Средний'
   },
   {
     id: 8,
@@ -408,7 +733,6 @@ const allCourses = [
     students: 720,
     price: 36900,
     originalPrice: 46900,
-    level: 'Продвинутый'
   },
   {
     id: 9,
@@ -419,7 +743,6 @@ const allCourses = [
     students: 540,
     price: 24900,
     originalPrice: 34900,
-    level: 'Начальный'
   },
   {
     id: 10,
@@ -430,7 +753,6 @@ const allCourses = [
     students: 680,
     price: 38900,
     originalPrice: 48900,
-    level: 'Средний'
   },
 
  
@@ -443,7 +765,6 @@ const allCourses = [
     students: 890,
     price: 34900,
     originalPrice: 44900,
-    level: 'Начальный'
   },
   {
     id: 12,
@@ -454,7 +775,6 @@ const allCourses = [
     students: 1250,
     price: 29900,
     originalPrice: 39900,
-    level: 'Начальный'
   },
   {
     id: 13,
@@ -465,7 +785,6 @@ const allCourses = [
     students: 480,
     price: 37900,
     originalPrice: 47900,
-    level: 'Средний'
   },
   {
     id: 14,
@@ -476,7 +795,6 @@ const allCourses = [
     students: 320,
     price: 41900,
     originalPrice: 51900,
-    level: 'Продвинутый'
   },
   {
     id: 15,
@@ -487,7 +805,6 @@ const allCourses = [
     students: 290,
     price: 45900,
     originalPrice: 55900,
-    level: 'Продвинутый'
   },
   {
     id: 16,
@@ -498,7 +815,6 @@ const allCourses = [
     students: 410,
     price: 32900,
     originalPrice: 42900,
-    level: 'Средний'
   },
 
   
@@ -511,7 +827,6 @@ const allCourses = [
     students: 1560,
     price: 25900,
     originalPrice: 35900,
-    level: 'Средний'
   },
   {
     id: 18,
@@ -522,7 +837,6 @@ const allCourses = [
     students: 1340,
     price: 22900,
     originalPrice: 32900,
-    level: 'Начальный'
   },
   {
     id: 19,
@@ -533,7 +847,6 @@ const allCourses = [
     students: 980,
     price: 28900,
     originalPrice: 38900,
-    level: 'Средний'
   },
   {
     id: 20,
@@ -544,7 +857,6 @@ const allCourses = [
     students: 760,
     price: 24900,
     originalPrice: 34900,
-    level: 'Начальный'
   },
   {
     id: 21,
@@ -555,7 +867,6 @@ const allCourses = [
     students: 520,
     price: 19900,
     originalPrice: 29900,
-    level: 'Начальный'
   },
   {
     id: 22,
@@ -566,7 +877,6 @@ const allCourses = [
     students: 430,
     price: 33900,
     originalPrice: 43900,
-    level: 'Продвинутый'
   },
 
   {
@@ -578,7 +888,6 @@ const allCourses = [
     students: 740,
     price: 27900,
     originalPrice: 37900,
-    level: 'Средний'
   },
   {
     id: 24,
@@ -589,7 +898,6 @@ const allCourses = [
     students: 380,
     price: 35900,
     originalPrice: 45900,
-    level: 'Продвинутый'
   },
   {
     id: 25,
@@ -600,7 +908,6 @@ const allCourses = [
     students: 290,
     price: 29900,
     originalPrice: 39900,
-    level: 'Средний',
   
   },
   {
@@ -612,7 +919,6 @@ const allCourses = [
     students: 210,
     price: 31900,
     originalPrice: 41900,
-    level: 'Продвинутый'
   },
 
 
@@ -625,7 +931,6 @@ const allCourses = [
     students: 670,
     price: 34900,
     originalPrice: 44900,
-    level: 'Средний'
   },
   {
     id: 28,
@@ -636,7 +941,6 @@ const allCourses = [
     students: 540,
     price: 26900,
     originalPrice: 36900,
-    level: 'Начальный'
   },
   {
     id: 29,
@@ -647,7 +951,6 @@ const allCourses = [
     students: 320,
     price: 38900,
     originalPrice: 48900,
-    level: 'Продвинутый'
   },
   {
     id: 30,
@@ -658,9 +961,9 @@ const allCourses = [
     students: 480,
     price: 41900,
     originalPrice: 51900,
-    level: 'Продвинутый'
   }
 ];
+
 
 
 
@@ -680,6 +983,7 @@ const generateParticles = () => {
   }
   return particles;
 };
+
 const Particles = React.memo(() => {
   const particles = useMemo(() => generateParticles(), []);
   
@@ -692,10 +996,218 @@ const Particles = React.memo(() => {
   );
 });
 
+const PaymentModalComponent = ({ isOpen, onClose, course }) => {
+  const [selectedMethod, setSelectedMethod] = useState('phone');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const paymentMethods = [
+    {
+      id: 'phone',
+      name: 'По номеру телефона',
+      color: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+      description: 'Оплата через СМС или мобильный оператор'
+    },
+    {
+      id: 'cash',
+      name: 'Наличными',
+      color: 'linear-gradient(135deg, #10b981, #34d399)',
+      description: 'Оплата в офисе или курьеру'
+    }
+  ];
+
+  const formatPhoneNumber = (value) => {
+    const numbers = value.replace(/\D/g, '');
+    
+    if (numbers.length === 0) return '';
+    if (numbers.length <= 1) return `+7 (${numbers}`;
+    if (numbers.length <= 4) return `+7 (${numbers.slice(1, 4)}`;
+    if (numbers.length <= 7) return `+7 (${numbers.slice(1, 4)}) ${numbers.slice(4, 7)}`;
+    if (numbers.length <= 9) return `+7 (${numbers.slice(1, 4)}) ${numbers.slice(4, 7)}-${numbers.slice(7, 9)}`;
+    return `+7 (${numbers.slice(1, 4)}) ${numbers.slice(4, 7)}-${numbers.slice(7, 9)}-${numbers.slice(9, 11)}`;
+  };
+
+ 
+
+  const handlePayment = async () => {
+
+    setIsProcessing(true);
+    
+    setTimeout(() => {
+      setIsProcessing(false);
+      setIsSuccess(true);
+      
+      setTimeout(() => {
+        setIsSuccess(false);
+        onClose();
+      }, 3000);
+    }, 2000);
+  };
+
+  if (!isOpen) return null;
+const calculateDiscountN = (price, originalPrice) => {
+    return Math.round((1 - price / originalPrice) * 100);
+  };
+  return (
+    <PaymentModalOverlay $isOpen={isOpen} onClick={onClose}>
+      <PaymentModal onClick={(e) => e.stopPropagation()}>
+        <CloseButton onClick={onClose}>✕</CloseButton>
+        
+        {isSuccess ? (
+          <>
+            <ModalHeader>
+              <ModalTitle>Заявка оформлена!</ModalTitle>
+              <ModalSubtitle>Мы свяжемся с вами в ближайшее время</ModalSubtitle>
+            </ModalHeader>
+            
+            <SuccessMessage>
+              <h4> Спасибо за заявку!</h4>
+              <p>
+                {selectedMethod === 'phone' 
+                  ? 'Наш менеджер свяжется с вами в течение 15 минут для подтверждения оплаты и активации доступа к курсу.'
+                  : 'Приходите в наш офис для оплаты наличными. Доступ к курсу будет открыт сразу после оплаты.'}
+              </p>
+            </SuccessMessage>
+            
+            <CourseInfo>
+              <CourseName>{course?.title || 'Название курса'}</CourseName>
+              <CourseDetails>
+                <span>Категория: {course?.category || 'Программирование'}</span>
+                <span>Стоимость: {course?.price?.toLocaleString() || '0'} ₽</span>
+              </CourseDetails>
+            </CourseInfo>
+          </>
+        ) : (
+          <>
+            <ModalHeader>
+              <ModalTitle>Оформление заявки</ModalTitle>
+            </ModalHeader>
+
+            <CourseInfo>
+              <CourseName>{course?.title || 'Название курса'}</CourseName>
+              <CourseDetails>
+                <span>Категория: {course?.category || 'Программирование'}</span>
+              </CourseDetails>
+            </CourseInfo>
+
+            <CoursePrice>
+                    <div className="current">{course.price.toLocaleString()} ₽</div>
+                    {course.originalPrice > course.price && (
+                      <>
+                        <div className="original">{course.originalPrice.toLocaleString()} ₽</div>
+                        <div className="discount">-{calculateDiscountN(course.price, course.originalPrice)}%</div>
+                      </>
+                    )}
+                  </CoursePrice>
+
+            <PaymentMethods>
+              <FormLabel>Способ оплаты</FormLabel>
+              {paymentMethods.map(method => (
+                <PaymentMethod
+                  key={method.id}
+                  $selected={selectedMethod === method.id}
+                  onClick={() => setSelectedMethod(method.id)}
+                >
+                  <MethodInfo>
+                    <h4>{method.name}</h4>
+                    <p>{method.description}</p>
+                  </MethodInfo>
+                </PaymentMethod>
+              ))}
+            </PaymentMethods>
+
+            {selectedMethod === 'phone' ? (
+              <PaymentForm>
+                <FormGroup>
+                  <FormLabel>Номер телефона</FormLabel>
+                  <PhoneInputContainer>
+                    <FormInput
+                      type="tel"
+                      placeholder="+7 (___) ___-__-__"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+                      maxLength="16"
+                    />
+                  </PhoneInputContainer>
+                </FormGroup>
+
+                
+
+                
+              </PaymentForm>
+            ) : (
+              <PaymentForm>
+                <CashPaymentInfo>
+                  <h4>Оплата наличными</h4>
+                  <p>Вы можете оплатить курс наличными в нашем офисе или курьеру при доставке материалов.</p>
+                  
+                  <div className="address">
+                    <p><strong>Адрес офиса:</strong></p>
+                    <p>г. Москва, ул. Тверская, д. 10, офис 305</p>
+                    <p><strong>График работы:</strong> Пн-Пт 10:00-19:00, Сб 11:00-17:00</p>
+                  </div>
+                </CashPaymentInfo>
+
+                <FormGroup>
+                  <FormLabel>Ваше имя</FormLabel>
+                  <FormInput
+                    type="text"
+                    placeholder="Иван Иванов"
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <FormLabel>Номер телефона</FormLabel>
+                  <PhoneInputContainer>
+                    <FormInput
+                      type="tel"
+                      placeholder="(999) 123-45-67"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+                      maxLength="16"
+                    />
+                  </PhoneInputContainer>
+                </FormGroup>
+
+              </PaymentForm>
+            )}
+
+
+            <SubmitButton 
+              onClick={handlePayment} 
+              disabled={isProcessing || (selectedMethod === 'phone' && !phoneNumber)}
+              $isCash={selectedMethod === 'cash'}
+            >
+              {isProcessing ? (
+                <>
+                  <span>Отправка заявки...</span>
+                  <div style={{ width: '20px', height: '20px' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/>
+                      <path fill="currentColor" d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z">
+                        <animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12" repeatCount="indefinite"/>
+                      </path>
+                    </svg>
+                  </div>
+                </>
+              ) : (
+                selectedMethod === 'phone' ? 'Отправить заявку на оплату' : 'Оформить заявку наличными'
+              )}
+            </SubmitButton>
+
+          </>
+        )}
+      </PaymentModal>
+    </PaymentModalOverlay>
+  );
+};
 
 const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const categories = ['Все', 'Программирование', 'Дизайн', 'Маркетинг', 'Менеджмент', 'Аналитика'];
 
@@ -719,9 +1231,13 @@ const Courses = () => {
     return Math.round((1 - price / originalPrice) * 100);
   };
 
+  const handleEnrollClick = (course) => {
+    setSelectedCourse(course);
+    setIsPaymentModalOpen(true);
+  };
+
   return (
     <CoursesContainer>
-      
       <Particles />
       <PageHeader>
         <h1>Все курсы</h1>
@@ -772,12 +1288,13 @@ const Courses = () => {
                 <CourseContent>
                   <CourseCategory>{course.category}</CourseCategory>
                   <CourseTitle>{course.title}</CourseTitle>
-                  <CourseDescription>{course.description}</CourseDescription>
+                  <CourseDescription>{course.description}</CourseDescription> 
                   <CourseMeta>
                     <div className="meta-item">
                       {course.duration}
                     </div>
                   </CourseMeta>
+                  
                   <CoursePrice>
                     <div className="current">{course.price.toLocaleString()} ₽</div>
                     {course.originalPrice > course.price && (
@@ -788,7 +1305,7 @@ const Courses = () => {
                     )}
                   </CoursePrice>
                   
-                  <EnrollButton>
+                  <EnrollButton onClick={() => handleEnrollClick(course)}>
                     Начать обучение 
                   </EnrollButton>
                 </CourseContent>
@@ -798,10 +1315,15 @@ const Courses = () => {
 
           {loading && <LoadMoreLoader />}
           {hasMore && !loading && <div ref={loadMoreRef} style={{ height: '1px' }} />}
-          
-          
         </>
       )}
+
+      {/* Модальное окно оплаты */}
+      <PaymentModalComponent
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        course={selectedCourse}
+      />
     </CoursesContainer>
   );
 };
