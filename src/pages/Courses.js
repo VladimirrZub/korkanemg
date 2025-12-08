@@ -71,7 +71,7 @@ const PaymentModal = styled.div`
   border-radius: 30px;
   padding: 3rem;
   width: 100%;
-  max-width: 700px; /* Увеличил ширину для двух колонок */
+  max-width: 700px; 
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
     0 30px 100px rgba(0, 0, 0, 0.6),
@@ -182,7 +182,7 @@ const DiscountBadge = styled.div`
 const ModalHeaderCompact = styled.div`
   text-align: center;
   margin-bottom: 2rem;
-  grid-column: 1 / -1; /* Занимает обе колонки */
+  grid-column: 1 / -1; 
 `;
 
 const ModalTitleCompact = styled.h2`
@@ -1031,16 +1031,13 @@ const PaymentModalComponent = ({ isOpen, onClose, course }) => {
 
   useEffect(() => {
   if (isOpen) {
-    // Запоминаем текущую позицию скролла
     const scrollY = window.scrollY;
-    // Фиксируем body
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
     
     return () => {
-      // Восстанавливаем скролл при закрытии
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
@@ -1161,7 +1158,6 @@ const PaymentModalComponent = ({ isOpen, onClose, course }) => {
             </ModalHeaderCompact>
 
             <ModalContent>
-              {/* Левая колонка - информация о курсе и цена */}
               <LeftColumn>
                 <CourseInfoSidebar>
                   <CourseCategorySidebar>
@@ -1189,7 +1185,6 @@ const PaymentModalComponent = ({ isOpen, onClose, course }) => {
                 </CourseInfoSidebar>
               </LeftColumn>
 
-              {/* Правая колонка - форма оплаты */}
               <RightColumn>
                 <PaymentMethods>
                   <FormLabel>Способ оплаты</FormLabel>
@@ -1394,7 +1389,6 @@ const Courses = () => {
         </>
       )}
 
-      {/* Модальное окно оплаты */}
       <PaymentModalComponent
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
