@@ -8,6 +8,7 @@ const FooterContainer = styled.footer`
   padding: 4rem 2rem 2rem;
   position: relative;
   overflow: hidden;
+  z-index: 2;
 `;
 
 const FooterContent = styled.div`

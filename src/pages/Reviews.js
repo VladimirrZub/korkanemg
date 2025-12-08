@@ -84,6 +84,8 @@ const StatsSection = styled.div`
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   animation: ${slideUp} 0.8s ease-out 0.2s both;
+  position: relative;
+  z-index: 2;
 `;
 
 const StatsGrid = styled.div`
@@ -153,6 +155,8 @@ const ReviewsGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 2rem;
   margin-bottom: 4rem;
+  position: relative;
+  z-index: 2;
 `;
 
 const ReviewCard = styled.div`
@@ -244,6 +248,8 @@ const AddReviewSection = styled.div`
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   animation: ${slideUp} 0.8s ease-out 0.6s both;
+  position: relative;
+  z-index: 2;
   
   h2 {
     color: white;

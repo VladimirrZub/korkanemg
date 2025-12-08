@@ -373,10 +373,10 @@ const Header = () => {
           </MobileNavLinks>
 
           <MobileAuthSection>
-            <AuthButton className="login" style={{ fontSize: '1rem' }}>
+            <AuthButton to="/login"  className="login" style={{ fontSize: '1rem' }}>
               Войти
             </AuthButton>
-            <AuthButton className="register" style={{ fontSize: '1rem' }}>
+            <AuthButton to="/register" className="register" style={{ fontSize: '1rem' }}>
               Регистрация
             </AuthButton>
           </MobileAuthSection>

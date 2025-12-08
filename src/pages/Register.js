@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useMemo, useState } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { Link } from 'react-router-dom';
 
 const particleFloat = keyframes`
@@ -30,6 +30,12 @@ const glow = keyframes`
   50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.4); }
 `;
 
+const shake = keyframes`
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+`;
+
 const AuthContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
@@ -57,7 +63,7 @@ const Particle = styled.div`
   height: ${props => props.size || '4px'};
   background: rgba(99, 102, 241, ${props => props.opacity || '0.6'});
   border-radius: 50%;
-  animation: ${particleFloat} ${props => props.duration || '20s'} linear infinite;
+  animation: ${props => css`${particleFloat} ${props.duration || '20s'} linear infinite`};
   top: ${props => props.top}%;
   left: ${props => props.left}%;
   animation-delay: ${props => props.delay || '0s'};
@@ -93,9 +99,8 @@ const AuthCard = styled.div`
 
 const AuthHeader = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 `;
-
 
 const AuthTitle = styled.h1`
   font-size: 2.5rem;
@@ -107,10 +112,6 @@ const AuthTitle = styled.h1`
   margin-bottom: 0.5rem;
 `;
 
-const AuthSubtitle = styled.p`
-  color: #a0a0a0;
-  font-size: 1.1rem;
-`;
 
 const AuthForm = styled.form`
   display: flex;
@@ -144,7 +145,11 @@ const FormInput = styled.input`
   width: 100%;
   padding: 1.2rem 3.5rem 1.2rem 1.5rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid ${props => {
+    if (props.$hasError) return '#ef4444';
+    if (props.$isValid) return '#10b981';
+    return 'rgba(255, 255, 255, 0.1)';
+  }};
   border-radius: 15px;
   color: white;
   font-size: 1rem;
@@ -154,19 +159,23 @@ const FormInput = styled.input`
   &:focus {
     border-color: #6366F1;
     background: rgba(99, 102, 241, 0.05);
-    animation: ${glow} 2s infinite;
+    ${props => !props.$hasError && css`
+      animation: ${glow} 2s infinite;
+    `}
   }
 
   &::placeholder {
     color: #666;
   }
-`;
 
+  ${props => props.$hasError && css`
+    animation: ${shake} 0.5s ease-in-out;
+  `}
+`;
 const PasswordToggle = styled.button`
   position: absolute;
   right: 15px;
-  top: 69%;
-  transform: translateY(-50%);
+  top: 50px; 
   background: transparent;
   border: none;
   color: #a0a0a0;
@@ -187,19 +196,38 @@ const PasswordToggle = styled.button`
   }
 
   &:active {
-    transform: translateY(-50%) scale(0.95);
+    transform: scale(0.95);
   }
 `;
 
+const ErrorMessage = styled.div`
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: ${slideUp} 0.3s ease-out;
+
+  &::before {
+    content: '⚠';
+  }
+`;
+
+
 const SubmitButton = styled.button`
   padding: 1.2rem 2.5rem;
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  background: ${props => 
+    props.disabled 
+      ? 'linear-gradient(135deg, #4b5563 0%, #6b7280 100%)' 
+      : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'
+  };
   border: none;
   border-radius: 15px;
   color: white;
   font-weight: 700;
   font-size: 1.1rem;
-  cursor: pointer;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   transition: all 0.3s ease;
   margin-top: 1rem;
   display: flex;
@@ -207,20 +235,14 @@ const SubmitButton = styled.button`
   justify-content: center;
   gap: 0.8rem;
 
-  &:hover {
+  &:hover:not(:disabled) {
     transform: translateY(-3px);
     box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
   }
 `;
 
 const AuthFooter = styled.div`
   text-align: center;
-  margin-top: 2rem;
   color: #a0a0a0;
   font-size: 0.95rem;
 `;
@@ -237,6 +259,29 @@ const AuthLink = styled(Link)`
     text-decoration: underline;
   }
 `;
+
+const PasswordRequirements = styled.div`
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+`;
+
+const Requirement = styled.div`
+  color: ${props => props.$valid ? '#10b981' : '#a0a0a0'};
+  font-size: 0.85rem;
+  margin: 0.3rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &::before {
+    content: '${props => props.$valid ? '✓' : '○'}';
+    font-size: 0.9rem;
+  }
+`;
+
+
 
 const EyeIcon = ({ show }) => (
   <svg 
@@ -275,6 +320,7 @@ const generateParticles = () => {
   }
   return particles;
 };
+
 const Particles = React.memo(() => {
   const particles = useMemo(() => generateParticles(), []);
   
@@ -288,25 +334,178 @@ const Particles = React.memo(() => {
 });
 
 const Register = () => {
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showConfirmPassword] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [password, setPassword] = React.useState('');
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    agreedToTerms: false
+  });
+
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const passwordRequirements = [
+    { id: 1, text: 'Минимум 8 символов', valid: formData.password.length >= 8 },
+  ];
+
+  const isPasswordValid = passwordRequirements.every(req => req.valid);
+  const passwordsMatch = formData.password === formData.confirmPassword;
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'Имя обязательно для заполнения';
+    } else if (formData.firstName.length < 2) {
+      newErrors.firstName = 'Имя должно содержать минимум 2 символа';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Фамилия обязательна для заполнения';
+    } else if (formData.lastName.length < 2) {
+      newErrors.lastName = 'Фамилия должна содержать минимум 2 символа';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email обязателен для заполнения';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Введите корректный email адрес';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Пароль обязателен для заполнения';
+    } else if (!isPasswordValid) {
+      newErrors.password = 'Пароль не соответствует требованиям';
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Подтвердите пароль';
+    } else if (!passwordsMatch) {
+      newErrors.confirmPassword = 'Пароли не совпадают';
+    }
+
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    
+    const newErrors = { ...errors };
+    // eslint-disable-next-line
+    switch (field) {
+      case 'firstName':
+        if (!formData.firstName.trim()) {
+          newErrors.firstName = 'Имя обязательно для заполнения';
+        } else if (formData.firstName.length < 2) {
+          newErrors.firstName = 'Имя должно содержать минимум 2 символа';
+        } else {
+          delete newErrors.firstName;
+        }
+        break;
+      
+      case 'lastName':
+        if (!formData.lastName.trim()) {
+          newErrors.lastName = 'Фамилия обязательна для заполнения';
+        } else if (formData.lastName.length < 2) {
+          newErrors.lastName = 'Фамилия должна содержать минимум 2 символа';
+        } else {
+          delete newErrors.lastName;
+        }
+        break;
+      
+      case 'email':
+        if (!formData.email.trim()) {
+          newErrors.email = 'Email обязателен для заполнения';
+        } else if (!validateEmail(formData.email)) {
+          newErrors.email = 'Введите корректный email адрес';
+        } else {
+          delete newErrors.email;
+        }
+        break;
+      
+      case 'password':
+        if (!formData.password) {
+          newErrors.password = 'Пароль обязателен для заполнения';
+        } else if (!isPasswordValid) {
+          newErrors.password = 'Пароль не соответствует требованиям';
+        } else {
+          delete newErrors.password;
+        }
+        break;
+      
+      case 'confirmPassword':
+        if (!formData.confirmPassword) {
+          newErrors.confirmPassword = 'Подтвердите пароль';
+        } else if (!passwordsMatch) {
+          newErrors.confirmPassword = 'Пароли не совпадают';
+        } else {
+          delete newErrors.confirmPassword;
+        }
+        break;
+    }
+    
+    setErrors(newErrors);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      alert('Регистрация успешна!');
-    }, 2000);
+    
+    const allFields = ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'agreedToTerms'];
+    setTouched(allFields.reduce((acc, field) => ({ ...acc, [field]: true }), {}));
+    
+    if (validateForm()) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        alert('Регистрация успешна!');
+      }, 2000);
+    } else {
+      const form = e.target;
+      form.style.animation = `${shake} 0.5s ease-in-out`;
+      setTimeout(() => {
+        form.style.animation = '';
+      }, 500);
+    }
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword(prev => !prev);
   };
+// eslint-disable-next-line
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(prev => !prev);
+  };
 
-  
+  const isFormValid = 
+    formData.firstName.trim() && 
+    formData.lastName.trim() && 
+    validateEmail(formData.email) && 
+    isPasswordValid && 
+    passwordsMatch  ;
 
   return (
     <AuthContainer>
@@ -314,10 +513,7 @@ const Register = () => {
       
       <AuthCard>
         <AuthHeader>
-          
-            
           <AuthTitle>Создать аккаунт</AuthTitle>
-          <AuthSubtitle>Присоединяйтесь к нашему сообществу</AuthSubtitle>
         </AuthHeader>
 
         <AuthForm onSubmit={handleSubmit}>
@@ -326,18 +522,36 @@ const Register = () => {
               <FormLabel>Имя</FormLabel>
               <FormInput 
                 type="text" 
+                name="firstName"
                 placeholder="Иван" 
+                value={formData.firstName}
+                onChange={handleChange}
+                onBlur={() => handleBlur('firstName')}
+                $hasError={touched.firstName && errors.firstName}
+                $isValid={touched.firstName && !errors.firstName && formData.firstName.length >= 2}
                 required 
               />
+              {touched.firstName && errors.firstName && (
+                <ErrorMessage>{errors.firstName}</ErrorMessage>
+              )}
             </FormGroup>
 
             <FormGroup>
               <FormLabel>Фамилия</FormLabel>
               <FormInput 
                 type="text" 
+                name="lastName"
                 placeholder="Иванов" 
+                value={formData.lastName}
+                onChange={handleChange}
+                onBlur={() => handleBlur('lastName')}
+                $hasError={touched.lastName && errors.lastName}
+                $isValid={touched.lastName && !errors.lastName && formData.lastName.length >= 2}
                 required 
               />
+              {touched.lastName && errors.lastName && (
+                <ErrorMessage>{errors.lastName}</ErrorMessage>
+              )}
             </FormGroup>
           </FormRow>
 
@@ -345,19 +559,32 @@ const Register = () => {
             <FormLabel>Email</FormLabel>
             <FormInput 
               type="email" 
+              name="email"
               placeholder="your@email.com" 
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={() => handleBlur('email')}
+              $hasError={touched.email && errors.email}
+              $isValid={touched.email && !errors.email && validateEmail(formData.email)}
               required 
             />
+            {touched.email && errors.email && (
+              <ErrorMessage>{errors.email}</ErrorMessage>
+            )}
           </FormGroup>
 
           <FormGroup>
             <FormLabel>Пароль</FormLabel>
             <FormInput 
               type={showPassword ? "text" : "password"} 
+              name="password"
               placeholder="••••••••" 
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={() => handleBlur('password')}
+              $hasError={touched.password && errors.password}
+              $isValid={touched.password && !errors.password && isPasswordValid}
               required 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
             />
             <PasswordToggle 
               type="button" 
@@ -367,21 +594,48 @@ const Register = () => {
               <EyeIcon show={showPassword} />
             </PasswordToggle>
             
+            <PasswordRequirements>
+              {passwordRequirements.map(req => (
+                <Requirement key={req.id} $valid={req.valid}>
+                  {req.text}
+                </Requirement>
+              ))}
+            </PasswordRequirements>
+            
+            {touched.password && errors.password && (
+              <ErrorMessage>{errors.password}</ErrorMessage>
+            )}
           </FormGroup>
 
           <FormGroup>
             <FormLabel>Подтвердите пароль</FormLabel>
             <FormInput 
               type={showConfirmPassword ? "text" : "password"} 
+              name="confirmPassword"
               placeholder="••••••••" 
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              onBlur={() => handleBlur('confirmPassword')}
+              $hasError={touched.confirmPassword && errors.confirmPassword}
+              $isValid={touched.confirmPassword && !errors.confirmPassword && passwordsMatch && formData.confirmPassword}
               required 
             />
+            
+            {touched.confirmPassword && errors.confirmPassword && (
+              <ErrorMessage>{errors.confirmPassword}</ErrorMessage>
+            )}
           </FormGroup>
 
 
-          <SubmitButton type="submit" disabled={isLoading}>
+          <SubmitButton type="submit" disabled={isLoading || !isFormValid}>
             {isLoading ? (
               <>
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/>
+                  <path fill="currentColor" d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z">
+                    <animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12" repeatCount="indefinite"/>
+                  </path>
+                </svg>
                 Регистрация...
               </>
             ) : (

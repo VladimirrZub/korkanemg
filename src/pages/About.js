@@ -57,6 +57,7 @@ const ContentSection = styled.section`
   max-width: 1200px;
   margin: 0 auto 4rem;
   animation: ${slideUp} 0.8s ease-out 0.2s both;
+  z-index: 2;
 `;
 
 const SectionTitle = styled.h2`
@@ -89,6 +90,7 @@ const MissionGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   margin-top: 3rem;
+  z-index: 2;
 `;
 
 const MissionCard = styled.div`
@@ -173,6 +175,8 @@ const StatsSection = styled.div`
   margin: 4rem 0;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
 `;
 
 const StatsGrid = styled.div`
@@ -218,6 +222,7 @@ const Particle = styled.div`
   top: ${props => props.top}%;
   left: ${props => props.left}%;
   animation-delay: ${props => props.delay || '0s'};
+  z-index: 1;
 `;
 
 

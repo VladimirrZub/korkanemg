@@ -29,6 +29,7 @@ const CoursesContainer = styled.div`
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
   padding: 2rem;
   padding-top: 120px;
+  z-index: 2;
 `;
 
 const PageHeader = styled.div`
@@ -58,6 +59,7 @@ const ControlsSection = styled.div`
   max-width: 1200px;
   margin: 0 auto 3rem;
   animation: ${slideUp} 0.8s ease-out 0.2s both;
+  z-index: 2;
 `;
 
 const SearchBox = styled.div`
@@ -137,6 +139,7 @@ const Particle = styled.div`
   top: ${props => props.top}%;
   left: ${props => props.left}%;
   animation-delay: ${props => props.delay || '0s'};
+  z-index: 1;
 `;
 
 
@@ -166,6 +169,7 @@ const CoursesGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 2rem;
   margin-bottom: 3rem;
+  z-index: 2;
 `;
 
 const CourseCard = styled.div`
@@ -177,6 +181,7 @@ const CourseCard = styled.div`
   transition: all 0.3s ease;
   animation: ${slideUp} 0.8s ease-out ${props => props.delay || '0s'} both;
   position: relative;
+  z-index: 2;
   
   &::before {
     content: '';
