@@ -45,7 +45,8 @@ const AuthContainer = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 2rem;
+	padding: 3rem;
+	padding-top: 100px;
 `
 
 const ParticlesBackground = styled.div`
@@ -287,27 +288,6 @@ const AuthLink = styled(Link)`
 	&:hover {
 		color: #8b5cf6;
 		text-decoration: underline;
-	}
-`
-
-const PasswordRequirements = styled.div`
-	background: rgba(255, 255, 255, 0.03);
-	border-radius: 10px;
-	padding: 1rem;
-	margin-top: 0.5rem;
-`
-
-const Requirement = styled.div`
-	color: ${props => (props.$valid ? '#10b981' : '#a0a0a0')};
-	font-size: 0.85rem;
-	margin: 0.3rem 0;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-
-	&::before {
-		content: '${props => (props.$valid ? '✓' : '○')}';
-		font-size: 0.9rem;
 	}
 `
 
@@ -720,14 +700,6 @@ const Register = () => {
 						>
 							<EyeIcon show={showPassword} />
 						</PasswordToggle>
-
-						<PasswordRequirements>
-							{passwordRequirements.map(req => (
-								<Requirement key={req.id} $valid={req.valid}>
-									{req.text}
-								</Requirement>
-							))}
-						</PasswordRequirements>
 
 						{touched.password && errors.password && (
 							<ErrorMessage>{errors.password}</ErrorMessage>
