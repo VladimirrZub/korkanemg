@@ -22,6 +22,7 @@ import {
 	serverTimestamp,
 } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
+import { getCourseById } from '../utils/courseUtils'
 
 const AuthContext = createContext()
 
@@ -299,6 +300,7 @@ export function AuthProvider({ children }) {
 				category: courseData.category || 'Без категории',
 				description: courseData.description || '',
 				purchaseDate: new Date().toISOString(),
+				progress: 0, // Добавляем прогресс
 			}
 
 			console.log('➕ Добавляемый курс:', courseToAdd)
@@ -347,7 +349,7 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Получение купленных курсов пользователя
+	// ПОЛУЧЕНИЕ КУПЛЕННЫХ КУРСОВ С ОБОГАЩЕННЫМИ ДАННЫМИ
 	async function getPurchasedCourses() {
 		try {
 			if (!currentUser) {
@@ -365,23 +367,54 @@ export function AuthProvider({ children }) {
 			}
 
 			const userData = userDoc.data()
-			console.log('Данные пользователя:', userData)
+			console.log('Сырые данные пользователя из Firestore:', userData)
 
 			if (!userData?.purchasedCourses?.length) {
 				console.log('У пользователя нет купленных курсов')
 				return []
 			}
 
-			console.log('Купленные курсы:', userData.purchasedCourses)
+			console.log(
+				'Сырые купленные курсы из Firestore:',
+				userData.purchasedCourses
+			)
 
-			// Добавляем прогресс к каждому курсу
-			const purchasedCourses = userData.purchasedCourses.map(course => ({
-				...course,
-				progress: 0,
-			}))
+			// Обогащаем данные курсов
+			const enrichedCourses = await Promise.all(
+				userData.purchasedCourses.map(async course => {
+					if (!course) return null
 
-			console.log('Итоговые купленные курсы:', purchasedCourses)
-			return purchasedCourses
+					const courseId = course.id
+					// Получаем полные данные курса из локального списка
+					const fullCourseData = getCourseById(courseId)
+
+					// Создаем обогащенный объект курса
+					const enrichedCourse = {
+						id: String(courseId),
+						title: fullCourseData?.title || course.title || `Курс ${courseId}`,
+						description:
+							fullCourseData?.description ||
+							course.description ||
+							'Описание отсутствует',
+						category:
+							fullCourseData?.category || course.category || 'Без категории',
+						price: course.price || fullCourseData?.price || 0,
+						purchaseDate: course.purchaseDate || new Date().toISOString(),
+						progress: course.progress || 0,
+						duration: fullCourseData?.duration || 'Не указано',
+						students: fullCourseData?.students || 0,
+						originalPrice: fullCourseData?.originalPrice || course.price || 0,
+					}
+
+					return enrichedCourse
+				})
+			)
+
+			// Фильтруем null значения
+			const filteredCourses = enrichedCourses.filter(course => course !== null)
+
+			console.log('Обогащенные купленные курсы:', filteredCourses)
+			return filteredCourses
 		} catch (error) {
 			console.error('Ошибка получения купленных курсов:', error)
 			return []
@@ -429,11 +462,7 @@ export function AuthProvider({ children }) {
 	// Получение всех пользователей (только для админа)
 	async function getAllUsers() {
 		try {
-			// Убираем проверку, чтобы увидеть ошибку если она есть
-			console.log(
-				'Запрос всех пользователей, текущий пользователь:',
-				currentUser?.email
-			)
+			console.log('Запрос всех пользователей')
 
 			const usersRef = collection(db, 'users')
 			const querySnapshot = await getDocs(usersRef)
@@ -441,13 +470,10 @@ export function AuthProvider({ children }) {
 			const users = []
 			querySnapshot.forEach(doc => {
 				const data = doc.data()
-				// Пропускаем самого админа
-				if (data.email !== 'admin@admin.da') {
-					users.push({
-						id: doc.id,
-						...data,
-					})
-				}
+				users.push({
+					id: doc.id,
+					...data,
+				})
 			})
 
 			console.log('Найдено пользователей:', users.length)
@@ -480,7 +506,7 @@ export function AuthProvider({ children }) {
 			}
 
 			const userData = userDoc.data()
-			const currentCourses = userData.purchasedCourses || []
+			let currentCourses = userData.purchasedCourses || []
 
 			// Преобразуем courseId в строку для сравнения
 			const courseIdStr = String(courseId)
@@ -488,22 +514,25 @@ export function AuthProvider({ children }) {
 			console.log('📊 Данные пользователя:', {
 				email: userData.email,
 				totalCourses: currentCourses.length,
-				courses: currentCourses.map(c => ({ id: c.id, type: typeof c.id })),
+				courses: currentCourses.map(c => ({
+					id: c.id,
+					type: typeof c.id,
+					title: c.title,
+				})),
 			})
 
 			console.log('🔍 Ищем курс с ID:', courseIdStr)
 
 			// Фильтруем курсы - сравниваем как строки
 			const updatedCourses = currentCourses.filter(course => {
-				const courseIdValue = course?.id
-				if (!courseIdValue) return true // сохраняем курсы без ID
+				if (!course || !course.id) return false
 
-				const courseIdStrValue = String(courseIdValue)
-				const shouldKeep = courseIdStrValue !== courseIdStr
+				const courseIdValue = String(course.id)
+				const shouldKeep = courseIdValue !== courseIdStr
 
 				if (!shouldKeep) {
 					console.log('🗑️ Найден курс для удаления:', {
-						courseId: courseIdValue,
+						courseId: course.id,
 						courseTitle: course.title,
 						match: false,
 					})
@@ -519,11 +548,7 @@ export function AuthProvider({ children }) {
 				currentCourses.length - updatedCourses.length
 			)
 
-			// Проверяем, что действительно что-то изменилось
-			if (currentCourses.length === updatedCourses.length) {
-				console.log('⚠️ Внимание: курс не найден для удаления')
-			}
-
+			// Обновляем данные в Firestore
 			await updateDoc(userDocRef, {
 				purchasedCourses: updatedCourses,
 				updatedAt: new Date().toISOString(),

@@ -69,8 +69,22 @@ const CourseDescription = styled.p`
 	color: ${props => props.theme.colors.text.secondary};
 	margin-bottom: 1rem;
 	font-size: 0.9rem;
-	flex: 1; // Занимает доступное пространство
-	min-height: 60px; // Фиксированная минимальная высота для описания
+	flex: 1;
+	min-height: 60px;
+`
+
+const CourseMeta = styled.div`
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	font-size: 0.8rem;
+	color: ${props => props.theme.colors.text.secondary};
+`
+
+const MetaItem = styled.span`
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
 `
 
 const ProgressBar = styled.div`
@@ -106,10 +120,10 @@ const ActionButton = styled(Link)`
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	margin-top: auto; // Прижимает кнопку к низу
+	margin-top: auto;
 	text-align: center;
 	text-decoration: none;
-	min-height: 50px; // Фиксированная высота кнопки
+	min-height: 50px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -143,29 +157,41 @@ const Dashboard = () => {
 	const { currentUser, userData, getPurchasedCourses } = useAuth()
 	const [purchasedCourses, setPurchasedCourses] = useState([])
 	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState('')
 
 	// Загрузка купленных курсов из Firebase
 	useEffect(() => {
 		const fetchPurchasedCourses = async () => {
 			try {
 				setLoading(true)
+				setError('')
+
 				if (currentUser) {
+					console.log('Загружаем курсы для пользователя:', currentUser.uid)
 					const courses = await getPurchasedCourses()
-					console.log('Загруженные курсы:', courses) // Для отладки
-					setPurchasedCourses(courses || [])
+					console.log('Полученные курсы:', courses)
+
+					if (Array.isArray(courses)) {
+						setPurchasedCourses(courses)
+					} else {
+						console.error('Получены неверные данные курсов:', courses)
+						setPurchasedCourses([])
+					}
 				} else {
+					console.log('Пользователь не авторизован')
 					setPurchasedCourses([])
 				}
 			} catch (error) {
 				console.error('Ошибка загрузки курсов:', error)
+				setError('Не удалось загрузить курсы')
 				setPurchasedCourses([])
 			} finally {
 				setLoading(false)
 			}
 		}
 
-		fetchPurchasedCourses() // eslint-disable-next-line
-	}, [currentUser, userData]) // Убрал зависимость от userData?.purchasedCourses
+		fetchPurchasedCourses()
+	}, [currentUser])
 
 	if (loading) {
 		return (
@@ -182,6 +208,9 @@ const Dashboard = () => {
 							animation: 'spin 1s linear infinite',
 						}}
 					/>
+					<p style={{ marginTop: '1rem', color: '#a0a0a0' }}>
+						Загрузка ваших курсов...
+					</p>
 				</div>
 			</Container>
 		)
@@ -194,9 +223,27 @@ const Dashboard = () => {
 					Добро пожаловать,{' '}
 					{userData?.displayName || currentUser?.email?.split('@')[0]}!
 				</WelcomeText>
+				<p style={{ color: '#a0a0a0', fontSize: '1.1rem' }}>
+					Здесь находятся все ваши приобретенные курсы
+				</p>
 			</DashboardHeader>
 
-			<SectionTitle> Мои курсы</SectionTitle>
+			<SectionTitle>Мои курсы</SectionTitle>
+
+			{error && (
+				<div
+					style={{
+						background: 'rgba(239, 68, 68, 0.1)',
+						border: '1px solid rgba(239, 68, 68, 0.3)',
+						borderRadius: '10px',
+						padding: '1rem',
+						marginBottom: '2rem',
+						color: '#ef4444',
+					}}
+				>
+					{error}
+				</div>
+			)}
 
 			{purchasedCourses && purchasedCourses.length > 0 ? (
 				<CoursesGrid>
@@ -205,6 +252,16 @@ const Dashboard = () => {
 							<CourseContent>
 								<CourseTitle>{course.title}</CourseTitle>
 								<CourseDescription>{course.description}</CourseDescription>
+
+								<CourseMeta>
+									<MetaItem>📅 {course.duration}</MetaItem>
+									<MetaItem>
+										👥 {course.students.toLocaleString()} студентов
+									</MetaItem>
+									<MetaItem>
+										💰 {course.price?.toLocaleString('ru-RU') || '0'} ₽
+									</MetaItem>
+								</CourseMeta>
 
 								<ProgressBar>
 									<ProgressFill progress={course.progress || 0} />

@@ -316,13 +316,19 @@ export const allCoursesList = [
 		originalPrice: 51900,
 	},
 ]
+
 export function getCourseTitleById(courseId) {
-	if (!courseId && courseId !== 0) {
-		console.warn('⚠️ getCourseTitleById получил undefined/null курс ID')
+	if (courseId === undefined || courseId === null || courseId === '') {
+		console.warn('⚠️ getCourseTitleById получил пустой курс ID')
 		return 'Неизвестный курс'
 	}
 
 	const courseIdNum = parseInt(courseId)
+	if (isNaN(courseIdNum)) {
+		console.warn(`⚠️ Неверный формат ID курса: ${courseId}`)
+		return `Курс #${courseId}`
+	}
+
 	const course = allCoursesList.find(c => c.id === courseIdNum)
 
 	if (!course) {
@@ -333,15 +339,32 @@ export function getCourseTitleById(courseId) {
 	return course.title
 }
 
-// Функция для получения полной информации о курсе по ID
 export function getCourseById(courseId) {
-	if (!courseId && courseId !== 0) return null
+	if (courseId === undefined || courseId === null || courseId === '') {
+		console.warn('⚠️ getCourseById получил пустой курс ID')
+		return null
+	}
 
 	const courseIdNum = parseInt(courseId)
-	return allCoursesList.find(c => c.id === courseIdNum)
+	if (isNaN(courseIdNum)) {
+		console.warn(`⚠️ Неверный формат ID курса: ${courseId}`)
+		return null
+	}
+
+	const course = allCoursesList.find(c => c.id === courseIdNum)
+
+	if (!course) {
+		console.warn(`⚠️ Курс с ID ${courseId} не найден в локальном списке`)
+		return null
+	}
+
+	return course
 }
 
-// Функция для безопасного форматирования ID курса
+export function getCoursesByCategory(category) {
+	return allCoursesList.filter(course => course.category === category)
+}
+
 export function formatCourseId(courseId) {
 	if (courseId === undefined || courseId === null) {
 		console.warn('⚠️ formatCourseId получил undefined/null')
@@ -350,17 +373,54 @@ export function formatCourseId(courseId) {
 	return String(courseId)
 }
 
-// Функция для валидации данных курса
 export function validateCourseData(course) {
-	if (!course) return false
+	if (!course) {
+		console.warn('⚠️ Курс не определен')
+		return false
+	}
 
-	const requiredFields = ['id', 'title']
-	for (const field of requiredFields) {
-		if (!course[field]) {
-			console.warn(`⚠️ Курс не имеет обязательного поля: ${field}`, course)
-			return false
-		}
+	if (!course.id && course.id !== 0) {
+		console.warn('⚠️ Курс не имеет ID:', course)
+		return false
+	}
+
+	if (!course.title) {
+		console.warn('⚠️ Курс не имеет названия:', course)
+		return false
 	}
 
 	return true
+}
+
+export function enrichCourseData(course) {
+	if (!course) return null
+
+	const fullCourse = getCourseById(course.id)
+
+	if (!fullCourse) {
+		return {
+			...course,
+			id: String(course.id),
+			title: course.title || `Курс ${course.id}`,
+			description: course.description || 'Описание отсутствует',
+			category: course.category || 'Без категории',
+			duration: course.duration || 'Не указано',
+			price: course.price || 0,
+			progress: course.progress || 0,
+			isValid: validateCourseData(course),
+		}
+	}
+
+	return {
+		...course,
+		...fullCourse,
+		id: String(course.id),
+		progress: course.progress || 0,
+		purchaseDate: course.purchaseDate || new Date().toISOString(),
+		isValid: true,
+	}
+}
+
+export function getAllCourses() {
+	return allCoursesList
 }

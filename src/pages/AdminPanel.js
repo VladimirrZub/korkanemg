@@ -277,16 +277,35 @@ const AdminPanel = () => {
 					return null
 				}
 
-				const courseId = course.id
-				const title = course.title || getCourseTitleById(courseId)
+				// Преобразуем ID в строку для консистентности
+				const courseId = course.id ? String(course.id) : 'unknown'
 
-				return {
+				// Получаем название из локального списка
+				const courseIdNum = parseInt(courseId)
+				const localCourse = allCoursesList.find(c => c.id === courseIdNum)
+
+				const enrichedCourse = {
 					...course,
 					id: courseId,
-					title: title,
-					formattedId: String(courseId),
-					isValid: validateCourseData(course),
+					title: localCourse?.title || course.title || `Курс ${courseId}`,
+					description:
+						localCourse?.description || course.description || 'Нет описания',
+					category: localCourse?.category || course.category || 'Без категории',
+					formattedId: courseId,
+					isValid: validateCourseData({
+						id: courseId,
+						title: localCourse?.title || course.title,
+					}),
+					// Добавляем дополнительные данные из локального списка
+					duration: localCourse?.duration || 'Не указано',
+					price: course.price || localCourse?.price || 0,
+					originalPrice: localCourse?.originalPrice || course.price || 0,
+					students: localCourse?.students || 0,
+					progress: course.progress || 0,
+					purchaseDate: course.purchaseDate || new Date().toISOString(),
 				}
+
+				return enrichedCourse
 			})
 			.filter(course => course !== null) // Убираем null курсы
 	}, [])
@@ -300,8 +319,15 @@ const AdminPanel = () => {
 
 			const usersData = await getAllUsers()
 
+			console.log('Получены данные пользователей:', usersData)
+
 			// Обогащаем данные пользователей
 			const enrichedUsers = usersData.map(user => {
+				console.log(
+					'Обогащаем курсы пользователя:',
+					user.email,
+					user.purchasedCourses
+				)
 				const enrichedCourses = enrichCourses(user.purchasedCourses)
 
 				return {
@@ -310,6 +336,8 @@ const AdminPanel = () => {
 					totalCourses: enrichedCourses.length,
 				}
 			})
+
+			console.log('Обогащенные пользователи:', enrichedUsers)
 
 			setUsers(enrichedUsers)
 			setFilteredUsers(enrichedUsers)
@@ -330,8 +358,7 @@ const AdminPanel = () => {
 			})
 
 			setDebugInfo(
-				prev =>
-					`✅ Успешно загружено ${enrichedUsers.length} пользователей\n` +
+				`✅ Успешно загружено ${enrichedUsers.length} пользователей\n` +
 					`📊 Статистика:\n` +
 					`   • Всего пользователей: ${enrichedUsers.length}\n` +
 					`   • Всего курсов: ${totalCourses}\n` +
@@ -375,12 +402,16 @@ const AdminPanel = () => {
 					`${prev}\n\n🗑️ Удаление курса "${courseTitle}" (ID: ${courseId})...`
 			)
 
-			await deleteUserCourse(userId, courseId)
+			const result = await deleteUserCourse(userId, courseId)
 
-			setDebugInfo(
-				prev =>
-					`${prev}\n✅ Курс "${courseTitle}" успешно удален. Обновление списка...`
-			)
+			if (result.success) {
+				setDebugInfo(
+					prev =>
+						`${prev}\n✅ Курс "${courseTitle}" успешно удален. Удалено курсов: ${result.removed}`
+				)
+			} else {
+				setDebugInfo(prev => `${prev}\n⚠️ Курс не был удален или не найден`)
+			}
 
 			// Обновляем список пользователей
 			await loadUsers()
@@ -421,13 +452,21 @@ const AdminPanel = () => {
 		setDebugInfo(testInfo)
 	}
 
-	const handleFixInvalidCourses = () => {
-		setDebugInfo(
-			'ℹ️ Эта функция в разработке. Для исправления данных:\n' +
-				'1. Удалите невалидные курсы через интерфейс\n' +
-				'2. Пользователи могут купить курсы заново\n' +
-				'3. Проверьте логику покупки курсов в системе'
-		)
+	const handleFixInvalidCourses = async () => {
+		try {
+			setDebugInfo('🔄 Исправление невалидных курсов...')
+
+			// Перезагружаем пользователей для актуальных данных
+			await loadUsers()
+
+			setDebugInfo(
+				prev => `${prev}\n✅ Данные обновлены. Проверьте список пользователей.`
+			)
+		} catch (error) {
+			setDebugInfo(
+				prev => `${prev}\n❌ Ошибка обновления данных: ${error.message}`
+			)
+		}
 	}
 
 	useEffect(() => {
@@ -497,7 +536,7 @@ const AdminPanel = () => {
 					📚 Тест данных курсов
 				</ActionButton>
 				<ActionButton onClick={handleFixInvalidCourses}>
-					🔧 Исправить данные
+					🔧 Обновить данные
 				</ActionButton>
 				<ActionButton onClick={handleClearDebug} $variant='danger'>
 					🧹 Очистить отладку
@@ -549,7 +588,9 @@ const AdminPanel = () => {
 								<div style={{ color: '#a0a0a0', fontSize: '0.9rem' }}>
 									Имя: {user.displayName || 'Не указано'} | Курсов:{' '}
 									{user.totalCourses || 0} | Зарегистрирован:{' '}
-									{new Date(user.createdAt).toLocaleDateString('ru-RU')}
+									{user.createdAt
+										? new Date(user.createdAt).toLocaleDateString('ru-RU')
+										: 'нет даты'}
 								</div>
 							</div>
 
@@ -581,14 +622,15 @@ const AdminPanel = () => {
 													)}
 												</CourseTitle>
 												<CourseId>
-													ID: {course.id} | Тип ID: {typeof course.id} | Куплен:{' '}
+													ID: {course.id} | Категория: {course.category} |
+													Длительность: {course.duration} | Куплен:{' '}
 													{course.purchaseDate
 														? new Date(course.purchaseDate).toLocaleDateString(
 																'ru-RU'
 														  )
 														: 'нет даты'}{' '}
 													| Цена: {course.price?.toLocaleString('ru-RU') || '0'}{' '}
-													₽
+													₽ | Прогресс: {course.progress || 0}%
 												</CourseId>
 											</CourseInfo>
 											<DeleteButton
