@@ -73,20 +73,6 @@ const CourseDescription = styled.p`
 	min-height: 60px;
 `
 
-const CourseMeta = styled.div`
-	display: flex;
-	justify-content: space-between;
-	margin-bottom: 1rem;
-	font-size: 0.8rem;
-	color: ${props => props.theme.colors.text.secondary};
-`
-
-const MetaItem = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-`
-
 const ProgressBar = styled.div`
 	background: rgba(255, 255, 255, 0.1);
 	height: 6px;
@@ -159,7 +145,6 @@ const Dashboard = () => {
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState('')
 
-	// Загрузка купленных курсов из Firebase
 	useEffect(() => {
 		const fetchPurchasedCourses = async () => {
 			try {
@@ -190,7 +175,7 @@ const Dashboard = () => {
 			}
 		}
 
-		fetchPurchasedCourses()
+		fetchPurchasedCourses() // eslint-disable-next-line
 	}, [currentUser])
 
 	if (loading) {
@@ -252,16 +237,6 @@ const Dashboard = () => {
 							<CourseContent>
 								<CourseTitle>{course.title}</CourseTitle>
 								<CourseDescription>{course.description}</CourseDescription>
-
-								<CourseMeta>
-									<MetaItem>📅 {course.duration}</MetaItem>
-									<MetaItem>
-										👥 {course.students.toLocaleString()} студентов
-									</MetaItem>
-									<MetaItem>
-										💰 {course.price?.toLocaleString('ru-RU') || '0'} ₽
-									</MetaItem>
-								</CourseMeta>
 
 								<ProgressBar>
 									<ProgressFill progress={course.progress || 0} />

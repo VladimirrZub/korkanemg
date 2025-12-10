@@ -13,7 +13,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 
-// Инициализация сервисов
 const auth = getAuth(app)
 const db = getFirestore(app)
 

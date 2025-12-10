@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext'
 const AdminRoute = ({ children }) => {
 	const { currentUser } = useAuth()
 
-	// Проверяем, является ли пользователь админом
 	const isAdmin = currentUser?.email === 'admin@admin.da'
 
 	if (!currentUser) {

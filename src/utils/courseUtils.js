@@ -1,7 +1,3 @@
-// utils/courseUtils.js
-// Создайте этот файл для работы с курсами
-
-// Локальный список всех курсов (должен совпадать с тем, что в pages/Courses.js)
 export const allCoursesList = [
 	{
 		id: 1,

@@ -523,12 +523,10 @@ const Register = () => {
 					setErrors({})
 					setTouched({})
 
-					// ПЕРЕНАПРАВЛЕНИЕ НА /courses ЧЕРЕЗ 2 СЕКУНДЫ
 					setTimeout(() => {
 						navigate('/courses')
 					}, 2000)
 				} else {
-					// Обработка ошибок из результата
 					const error = result.error
 					if (error && error.code) {
 						switch (error.code) {
@@ -572,7 +570,6 @@ const Register = () => {
 				setIsLoading(false)
 			}
 		} else {
-			// Используем анимацию напрямую
 			const form = e.target
 			form.style.animation = `shake 0.5s ease-in-out`
 			setTimeout(() => {

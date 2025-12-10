@@ -563,7 +563,7 @@ const CoursesGrid = styled.div`
 	gap: 2rem;
 	margin-bottom: 3rem;
 	z-index: 2;
-	align-items: stretch; // Растягиваем карточки по высоте
+	align-items: stretch;
 `
 const CourseCard = styled.div`
 	background: rgba(255, 255, 255, 0.05);
@@ -641,7 +641,7 @@ const CourseDescription = styled.p`
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 	flex: 1;
-	min-height: 48px; // Фиксированная минимальная высота для описания (2 строки)
+	min-height: 48px;
 `
 
 const CourseMeta = styled.div`
@@ -669,12 +669,12 @@ const EnrollButton = styled.button`
 	font-weight: 700;
 	font-size: 1.1rem;
 	transition: all 0.3s ease;
-	margin-top: auto; // Прижимаем кнопку к низу карточки
-	min-height: 50px; // Фиксированная высота кнопки
+	margin-top: auto;
+	min-height: 50px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	flex-shrink: 0; // Запрещаем сжатие
+	flex-shrink: 0;
 
 	&:hover {
 		transform: translateY(-2px);
@@ -1047,7 +1047,6 @@ const Particles = React.memo(() => {
 	)
 })
 
-// Компонент модального окна оплаты
 const PaymentModalComponent = ({
 	isOpen,
 	onClose,
@@ -1119,7 +1118,6 @@ const PaymentModalComponent = ({
 		setError('')
 
 		try {
-			// Формальная покупка курса
 			const result = await purchaseCourse(course.id.toString(), {
 				title: course.title,
 				price: course.price,
@@ -1413,9 +1411,7 @@ const Courses = () => {
 	}
 
 	const handleEnrollClick = course => {
-		// Проверяем, авторизован ли пользователь
 		if (!currentUser) {
-			// Перенаправляем на регистрацию
 			navigate('/register')
 			return
 		}
@@ -1425,7 +1421,6 @@ const Courses = () => {
 	}
 
 	const handlePurchaseSuccess = () => {
-		// Можно добавить уведомление или другие действия после успешной покупки
 		console.log('Курс успешно куплен!')
 	}
 

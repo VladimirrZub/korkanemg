@@ -1,4 +1,3 @@
-// context/AuthContext.js
 import React, { createContext, useState, useEffect, useContext } from 'react'
 import {
 	createUserWithEmailAndPassword,
@@ -17,7 +16,7 @@ import {
 	query,
 	where,
 	getDocs,
-	arrayUnion,
+	arrayUnion, // eslint-disable-next-line
 	arrayRemove,
 	serverTimestamp,
 } from 'firebase/firestore'
@@ -35,14 +34,12 @@ export function AuthProvider({ children }) {
 	const [userData, setUserData] = useState(null)
 	const [loading, setLoading] = useState(true)
 
-	// Создание/проверка записи админа в Firestore
 	const createAdminRecord = async userId => {
 		try {
 			const adminDocRef = doc(db, 'users', userId)
 			const adminDoc = await getDoc(adminDocRef)
 
 			if (!adminDoc.exists()) {
-				// Создаем запись админа
 				const adminData = {
 					uid: userId,
 					email: 'admin@admin.da',
@@ -65,7 +62,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Проверка, существует ли пользователь с таким email
 	async function checkEmailExists(email) {
 		try {
 			const usersRef = collection(db, 'users')
@@ -79,12 +75,10 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Регистрация нового пользователя
 	async function signup(email, password, userInfo) {
 		try {
 			console.log('Начинаем регистрацию:', email)
 
-			// Проверяем, существует ли уже пользователь с таким email
 			const emailExists = await checkEmailExists(email)
 			if (emailExists) {
 				console.log('Email уже существует:', email)
@@ -97,7 +91,6 @@ export function AuthProvider({ children }) {
 				}
 			}
 
-			// 1. Создаем пользователя в Firebase Auth
 			const userCredential = await createUserWithEmailAndPassword(
 				auth,
 				email,
@@ -105,20 +98,16 @@ export function AuthProvider({ children }) {
 			)
 			console.log('Пользователь создан в Auth:', userCredential.user.uid)
 
-			// Для администратора не отправляем подтверждение email
 			if (email !== 'admin@admin.da') {
-				// 2. Отправляем письмо для подтверждения email
 				await sendEmailVerification(userCredential.user)
 				console.log('Письмо для подтверждения отправлено')
 			}
 
-			// 3. Обновляем профиль с именем
 			await updateProfile(userCredential.user, {
 				displayName: `${userInfo.firstName} ${userInfo.lastName}`,
 			})
 			console.log('Профиль обновлен')
 
-			// 4. Сохраняем дополнительные данные в Firestore
 			const userDocRef = doc(db, 'users', userCredential.user.uid)
 			const userData = {
 				uid: userCredential.user.uid,
@@ -139,7 +128,6 @@ export function AuthProvider({ children }) {
 			await setDoc(userDocRef, userData)
 			console.log('Данные сохранены в Firestore')
 
-			// 5. Получаем и сохраняем данные пользователя
 			const userDoc = await getDoc(userDocRef)
 			if (userDoc.exists()) {
 				setUserData(userDoc.data())
@@ -163,15 +151,12 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Вход пользователя
 	async function login(email, password) {
 		try {
 			console.log('Попытка входа:', email)
 
-			// Для админа используем специальную логику
 			if (email === 'admin@admin.da' && password === 'admin1') {
 				try {
-					// Пытаемся войти с существующими учетными данными
 					const userCredential = await signInWithEmailAndPassword(
 						auth,
 						email,
@@ -179,10 +164,8 @@ export function AuthProvider({ children }) {
 					)
 					console.log('Админ вошел в систему:', userCredential.user.uid)
 
-					// Создаем/проверяем запись админа в Firestore
 					await createAdminRecord(userCredential.user.uid)
 
-					// Получаем данные админа из Firestore
 					const adminDoc = await getDoc(
 						doc(db, 'users', userCredential.user.uid)
 					)
@@ -196,9 +179,7 @@ export function AuthProvider({ children }) {
 						user: userCredential.user,
 					}
 				} catch (authError) {
-					// Если админа нет в auth, создаем его
 					if (authError.code === 'auth/user-not-found') {
-						// Создаем админа через регистрацию
 						const adminInfo = {
 							firstName: 'Admin',
 							lastName: 'Administrator',
@@ -209,7 +190,6 @@ export function AuthProvider({ children }) {
 					throw authError
 				}
 			} else {
-				// Обычный вход для других пользователей
 				const userCredential = await signInWithEmailAndPassword(
 					auth,
 					email,
@@ -217,7 +197,6 @@ export function AuthProvider({ children }) {
 				)
 				console.log('Вход успешен:', userCredential.user.uid)
 
-				// Получаем данные пользователя из Firestore
 				const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid))
 				if (userDoc.exists()) {
 					setUserData(userDoc.data())
@@ -243,7 +222,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Выход пользователя
 	async function logout() {
 		try {
 			await signOut(auth)
@@ -262,7 +240,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Покупка курса
 	async function purchaseCourse(courseId, courseData) {
 		try {
 			if (!currentUser) {
@@ -279,7 +256,6 @@ export function AuthProvider({ children }) {
 				courseData,
 			})
 
-			// Проверяем, не куплен ли уже курс
 			const userDocRef = doc(db, 'users', currentUser.uid)
 			const userDoc = await getDoc(userDocRef)
 			const userData = userDoc.exists() ? userDoc.data() : {}
@@ -292,15 +268,14 @@ export function AuthProvider({ children }) {
 				}
 			}
 
-			// 1. Добавляем курс в purchasedCourses пользователя
 			const courseToAdd = {
-				id: String(courseId), // Всегда строка!
+				id: String(courseId),
 				title: courseData.title || `Курс ${courseId}`,
 				price: courseData.price || 0,
 				category: courseData.category || 'Без категории',
 				description: courseData.description || '',
 				purchaseDate: new Date().toISOString(),
-				progress: 0, // Добавляем прогресс
+				progress: 0,
 			}
 
 			console.log('➕ Добавляемый курс:', courseToAdd)
@@ -311,7 +286,6 @@ export function AuthProvider({ children }) {
 			})
 			console.log('Курс добавлен в purchasedCourses пользователя')
 
-			// 2. Создаем запись о покупке в коллекции purchases
 			const purchaseRef = doc(collection(db, 'purchases'))
 			const purchaseData = {
 				purchaseId: purchaseRef.id,
@@ -327,7 +301,6 @@ export function AuthProvider({ children }) {
 			await setDoc(purchaseRef, purchaseData)
 			console.log('Запись о покупке создана:', purchaseData)
 
-			// 3. Обновляем локальные данные пользователя
 			const updatedUserDoc = await getDoc(userDocRef)
 			if (updatedUserDoc.exists()) {
 				const newUserData = updatedUserDoc.data()
@@ -349,7 +322,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// ПОЛУЧЕНИЕ КУПЛЕННЫХ КУРСОВ С ОБОГАЩЕННЫМИ ДАННЫМИ
 	async function getPurchasedCourses() {
 		try {
 			if (!currentUser) {
@@ -359,7 +331,6 @@ export function AuthProvider({ children }) {
 
 			console.log('Получаем купленные курсы для пользователя:', currentUser.uid)
 
-			// Получаем актуальные данные пользователя
 			const userDoc = await getDoc(doc(db, 'users', currentUser.uid))
 			if (!userDoc.exists()) {
 				console.log('Документ пользователя не найден')
@@ -379,16 +350,13 @@ export function AuthProvider({ children }) {
 				userData.purchasedCourses
 			)
 
-			// Обогащаем данные курсов
 			const enrichedCourses = await Promise.all(
 				userData.purchasedCourses.map(async course => {
 					if (!course) return null
 
 					const courseId = course.id
-					// Получаем полные данные курса из локального списка
 					const fullCourseData = getCourseById(courseId)
 
-					// Создаем обогащенный объект курса
 					const enrichedCourse = {
 						id: String(courseId),
 						title: fullCourseData?.title || course.title || `Курс ${courseId}`,
@@ -410,7 +378,6 @@ export function AuthProvider({ children }) {
 				})
 			)
 
-			// Фильтруем null значения
 			const filteredCourses = enrichedCourses.filter(course => course !== null)
 
 			console.log('Обогащенные купленные курсы:', filteredCourses)
@@ -421,7 +388,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Обновление профиля пользователя
 	async function updateUserProfile(updates) {
 		try {
 			if (!currentUser) {
@@ -431,21 +397,18 @@ export function AuthProvider({ children }) {
 				}
 			}
 
-			// Обновляем данные в Firestore
 			const userDocRef = doc(db, 'users', currentUser.uid)
 			await updateDoc(userDocRef, {
 				...updates,
 				updatedAt: new Date().toISOString(),
 			})
 
-			// Обновляем displayName в Firebase Auth
 			if (updates.firstName && updates.lastName) {
 				await updateProfile(currentUser, {
 					displayName: `${updates.firstName} ${updates.lastName}`,
 				})
 			}
 
-			// Обновляем локальные данные
 			const updatedDoc = await getDoc(userDocRef)
 			setUserData(updatedDoc.data())
 
@@ -459,7 +422,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Получение всех пользователей (только для админа)
 	async function getAllUsers() {
 		try {
 			console.log('Запрос всех пользователей')
@@ -484,7 +446,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Удаление курса у пользователя (только для админа)
 	async function deleteUserCourse(userId, courseId) {
 		try {
 			console.log('🔵 Удаление курса:', {
@@ -508,7 +469,6 @@ export function AuthProvider({ children }) {
 			const userData = userDoc.data()
 			let currentCourses = userData.purchasedCourses || []
 
-			// Преобразуем courseId в строку для сравнения
 			const courseIdStr = String(courseId)
 
 			console.log('📊 Данные пользователя:', {
@@ -523,7 +483,6 @@ export function AuthProvider({ children }) {
 
 			console.log('🔍 Ищем курс с ID:', courseIdStr)
 
-			// Фильтруем курсы - сравниваем как строки
 			const updatedCourses = currentCourses.filter(course => {
 				if (!course || !course.id) return false
 
@@ -548,7 +507,6 @@ export function AuthProvider({ children }) {
 				currentCourses.length - updatedCourses.length
 			)
 
-			// Обновляем данные в Firestore
 			await updateDoc(userDocRef, {
 				purchasedCourses: updatedCourses,
 				updatedAt: new Date().toISOString(),
@@ -571,7 +529,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Загрузка данных пользователя из Firestore
 	async function loadUserData(uid) {
 		try {
 			console.log('Загрузка данных пользователя:', uid)
@@ -582,10 +539,8 @@ export function AuthProvider({ children }) {
 				setUserData(data)
 				console.log('Данные пользователя загружены:', data)
 			} else {
-				// Если запись не найдена, создаем для админа
 				if (currentUser?.email === 'admin@admin.da') {
 					await createAdminRecord(uid)
-					// Повторно получаем данные
 					const newUserDoc = await getDoc(doc(db, 'users', uid))
 					if (newUserDoc.exists()) {
 						setUserData(newUserDoc.data())
@@ -601,7 +556,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	// Проверка статуса аутентификации
 	useEffect(() => {
 		console.log('Настройка отслеживания аутентификации...')
 		const unsubscribe = onAuthStateChanged(auth, async user => {
@@ -618,7 +572,7 @@ export function AuthProvider({ children }) {
 			console.log('Загрузка завершена')
 		})
 
-		return unsubscribe
+		return unsubscribe // eslint-disable-next-line
 	}, [])
 
 	const value = {

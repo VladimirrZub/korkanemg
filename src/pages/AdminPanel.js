@@ -264,7 +264,6 @@ const AdminPanel = () => {
 		activeUsers: 0,
 	})
 
-	// Функция для обогащения данных курсов
 	const enrichCourses = useCallback(courses => {
 		if (!courses || !Array.isArray(courses)) {
 			return []
@@ -277,10 +276,8 @@ const AdminPanel = () => {
 					return null
 				}
 
-				// Преобразуем ID в строку для консистентности
 				const courseId = course.id ? String(course.id) : 'unknown'
 
-				// Получаем название из локального списка
 				const courseIdNum = parseInt(courseId)
 				const localCourse = allCoursesList.find(c => c.id === courseIdNum)
 
@@ -296,7 +293,6 @@ const AdminPanel = () => {
 						id: courseId,
 						title: localCourse?.title || course.title,
 					}),
-					// Добавляем дополнительные данные из локального списка
 					duration: localCourse?.duration || 'Не указано',
 					price: course.price || localCourse?.price || 0,
 					originalPrice: localCourse?.originalPrice || course.price || 0,
@@ -307,21 +303,19 @@ const AdminPanel = () => {
 
 				return enrichedCourse
 			})
-			.filter(course => course !== null) // Убираем null курсы
+			.filter(course => course !== null)
 	}, [])
 
-	// Загрузка пользователей
 	const loadUsers = useCallback(async () => {
 		try {
 			setLoading(true)
 			setError('')
-			setDebugInfo('🔄 Загрузка пользователей...')
+			setDebugInfo(' Загрузка пользователей...')
 
 			const usersData = await getAllUsers()
 
 			console.log('Получены данные пользователей:', usersData)
 
-			// Обогащаем данные пользователей
 			const enrichedUsers = usersData.map(user => {
 				console.log(
 					'Обогащаем курсы пользователя:',
@@ -342,7 +336,6 @@ const AdminPanel = () => {
 			setUsers(enrichedUsers)
 			setFilteredUsers(enrichedUsers)
 
-			// Расчет статистики
 			const totalCourses = enrichedUsers.reduce(
 				(sum, user) => sum + user.totalCourses,
 				0
@@ -358,8 +351,8 @@ const AdminPanel = () => {
 			})
 
 			setDebugInfo(
-				`✅ Успешно загружено ${enrichedUsers.length} пользователей\n` +
-					`📊 Статистика:\n` +
+				` Успешно загружено ${enrichedUsers.length} пользователей\n` +
+					` Статистика:\n` +
 					`   • Всего пользователей: ${enrichedUsers.length}\n` +
 					`   • Всего курсов: ${totalCourses}\n` +
 					`   • Активных пользователей: ${activeUsers}\n\n` +
@@ -370,7 +363,7 @@ const AdminPanel = () => {
 			console.error('Ошибка загрузки пользователей:', error)
 			const errorMsg = error?.message || 'Неизвестная ошибка'
 			setError(`Ошибка загрузки: ${errorMsg}`)
-			setDebugInfo(`❌ Ошибка загрузки: ${errorMsg}\n\n${error?.stack || ''}`)
+			setDebugInfo(` Ошибка загрузки: ${errorMsg}\n\n${error?.stack || ''}`)
 		} finally {
 			setLoading(false)
 		}
@@ -380,7 +373,6 @@ const AdminPanel = () => {
 		loadUsers()
 	}, [loadUsers])
 
-	// Удаление курса
 	const handleDeleteCourse = async (userId, courseId, courseTitle) => {
 		if (!userId || !courseId) {
 			setError('Ошибка: не указан userId или courseId')
@@ -399,7 +391,7 @@ const AdminPanel = () => {
 			setDeletingCourse(`${userId}-${courseId}`)
 			setDebugInfo(
 				prev =>
-					`${prev}\n\n🗑️ Удаление курса "${courseTitle}" (ID: ${courseId})...`
+					`${prev}\n\n Удаление курса "${courseTitle}" (ID: ${courseId})...`
 			)
 
 			const result = await deleteUserCourse(userId, courseId)
@@ -407,19 +399,18 @@ const AdminPanel = () => {
 			if (result.success) {
 				setDebugInfo(
 					prev =>
-						`${prev}\n✅ Курс "${courseTitle}" успешно удален. Удалено курсов: ${result.removed}`
+						`${prev}\n Курс "${courseTitle}" успешно удален. Удалено курсов: ${result.removed}`
 				)
 			} else {
 				setDebugInfo(prev => `${prev}\n⚠️ Курс не был удален или не найден`)
 			}
 
-			// Обновляем список пользователей
 			await loadUsers()
 		} catch (error) {
 			console.error('Ошибка удаления курса:', error)
 			const errorMsg = error?.message || 'Неизвестная ошибка'
 			setError(`Ошибка удаления курса: ${errorMsg}`)
-			setDebugInfo(prev => `${prev}\n❌ Ошибка удаления: ${errorMsg}`)
+			setDebugInfo(prev => `${prev}\n Ошибка удаления: ${errorMsg}`)
 		} finally {
 			setDeletingCourse(null)
 		}
@@ -434,7 +425,7 @@ const AdminPanel = () => {
 
 	const handleTestCourseData = () => {
 		const testInfo =
-			`📚 Тест данных курсов:\n` +
+			` Тест данных курсов:\n` +
 			`Локальный список содержит ${allCoursesList.length} курсов.\n\n` +
 			`Примеры функций:\n` +
 			`   • getCourseTitleById(1) = "${getCourseTitleById(1)}"\n` +
@@ -456,15 +447,14 @@ const AdminPanel = () => {
 		try {
 			setDebugInfo('🔄 Исправление невалидных курсов...')
 
-			// Перезагружаем пользователей для актуальных данных
 			await loadUsers()
 
 			setDebugInfo(
-				prev => `${prev}\n✅ Данные обновлены. Проверьте список пользователей.`
+				prev => `${prev}\n Данные обновлены. Проверьте список пользователей.`
 			)
 		} catch (error) {
 			setDebugInfo(
-				prev => `${prev}\n❌ Ошибка обновления данных: ${error.message}`
+				prev => `${prev}\n Ошибка обновления данных: ${error.message}`
 			)
 		}
 	}
@@ -530,16 +520,16 @@ const AdminPanel = () => {
 
 			<ActionButtons>
 				<ActionButton onClick={loadUsers} disabled={loading}>
-					{loading ? '🔄 Загрузка...' : '🔄 Загрузить пользователей'}
+					{loading ? ' Загрузка...' : ' Загрузить пользователей'}
 				</ActionButton>
 				<ActionButton onClick={handleTestCourseData} disabled={loading}>
-					📚 Тест данных курсов
+					Тест данных курсов
 				</ActionButton>
 				<ActionButton onClick={handleFixInvalidCourses}>
-					🔧 Обновить данные
+					Обновить данные
 				</ActionButton>
 				<ActionButton onClick={handleClearDebug} $variant='danger'>
-					🧹 Очистить отладку
+					Очистить отладку
 				</ActionButton>
 			</ActionButtons>
 
@@ -645,7 +635,7 @@ const AdminPanel = () => {
 											>
 												{deletingCourse === `${user.id}-${course.id}`
 													? 'Удаление...'
-													: '🗑️ Удалить'}
+													: ' Удалить'}
 											</DeleteButton>
 										</CourseItem>
 									))}

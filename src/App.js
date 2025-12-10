@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, Suspense, useEffect } from 'react'
 import {
 	BrowserRouter as Router,
@@ -37,7 +36,7 @@ const Login = React.lazy(() => import('./pages/Login'))
 const Register = React.lazy(() => import('./pages/Register'))
 const Dashboard = React.lazy(() => import('./pages/Dashboard'))
 const Profile = React.lazy(() => import('./pages/Profile'))
-const AdminPanel = React.lazy(() => import('./pages/AdminPanel')) // Изменил путь!
+const AdminPanel = React.lazy(() => import('./pages/AdminPanel'))
 
 const MainContent = styled.main`
 	min-height: 100vh;

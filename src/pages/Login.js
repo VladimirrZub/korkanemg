@@ -368,14 +368,12 @@ const Login = () => {
 					}, 1000)
 				}
 				setTimeout(() => {
-					// ПЕРЕНАПРАВЛЕНИЕ НА /courses ВМЕСТО /dashboard
 					navigate('/courses')
 				}, 1500)
 			}
 		} catch (error) {
 			console.error('Ошибка входа:', error)
 
-			// Обработка ошибок Firebase
 			switch (error.code || error.message) {
 				case 'auth/user-not-found':
 					setError('Пользователь с таким email не найден')
