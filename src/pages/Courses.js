@@ -230,17 +230,20 @@ const CoursePrice = styled.div`
 	align-items: center;
 	gap: 1rem;
 	margin-bottom: 1.5rem;
+	flex-wrap: wrap;
 
 	.current {
 		font-size: 1.8rem;
 		font-weight: 800;
 		color: #6366f1;
+		margin-bottom: 0.5rem;
 	}
 
 	.original {
 		font-size: 1.2rem;
 		color: #666;
 		text-decoration: line-through;
+		margin-bottom: 0.5rem;
 	}
 
 	.discount {
@@ -250,6 +253,7 @@ const CoursePrice = styled.div`
 		border-radius: 10px;
 		font-size: 0.8rem;
 		font-weight: 700;
+		margin-bottom: 0.5rem;
 	}
 `
 
@@ -559,8 +563,8 @@ const CoursesGrid = styled.div`
 	gap: 2rem;
 	margin-bottom: 3rem;
 	z-index: 2;
+	align-items: stretch; // Растягиваем карточки по высоте
 `
-
 const CourseCard = styled.div`
 	background: rgba(255, 255, 255, 0.05);
 	border: 1px solid rgba(255, 255, 255, 0.1);
@@ -571,6 +575,9 @@ const CourseCard = styled.div`
 	animation: ${slideUp} 0.8s ease-out ${props => props.delay || '0s'} both;
 	position: relative;
 	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 
 	&::before {
 		content: '';
@@ -598,9 +605,11 @@ const CourseCard = styled.div`
 		}
 	}
 `
-
 const CourseContent = styled.div`
 	padding: 1.5rem;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
 `
 
 const CourseCategory = styled.div`
@@ -631,6 +640,8 @@ const CourseDescription = styled.p`
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
+	flex: 1;
+	min-height: 48px; // Фиксированная минимальная высота для описания (2 строки)
 `
 
 const CourseMeta = styled.div`
@@ -658,6 +669,12 @@ const EnrollButton = styled.button`
 	font-weight: 700;
 	font-size: 1.1rem;
 	transition: all 0.3s ease;
+	margin-top: auto; // Прижимаем кнопку к низу карточки
+	min-height: 50px; // Фиксированная высота кнопки
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0; // Запрещаем сжатие
 
 	&:hover {
 		transform: translateY(-2px);
@@ -1165,7 +1182,7 @@ const PaymentModalComponent = ({
 						</ModalHeaderCompact>
 
 						<SuccessMessage>
-							<h4>🎉 Поздравляем!</h4>
+							<h4> Поздравляем!</h4>
 							<p>
 								Курс "{course?.title}" теперь доступен в вашем личном кабинете.
 								Вы можете начать обучение прямо сейчас!

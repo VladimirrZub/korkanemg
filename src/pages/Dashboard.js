@@ -41,6 +41,9 @@ const CourseCard = styled.div`
 	border-radius: 20px;
 	overflow: hidden;
 	transition: all 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 
 	&:hover {
 		transform: translateY(-5px);
@@ -49,29 +52,11 @@ const CourseCard = styled.div`
 	}
 `
 
-const CourseImage = styled.div`
-	height: 200px;
-	background: ${props =>
-		`linear-gradient(135deg, ${props.theme.colors.primary} 0%, ${props.theme.colors.secondary} 100%)`};
-	position: relative;
-	overflow: hidden;
-
-	&::after {
-		content: 'ДОСТУПНО';
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		background: rgba(34, 197, 94, 0.2);
-		color: rgba(34, 197, 94, 1);
-		padding: 0.5rem 1rem;
-		border-radius: 20px;
-		font-size: 0.8rem;
-		font-weight: 600;
-	}
-`
-
 const CourseContent = styled.div`
 	padding: 1.5rem;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
 `
 
 const CourseTitle = styled.h3`
@@ -84,6 +69,8 @@ const CourseDescription = styled.p`
 	color: ${props => props.theme.colors.text.secondary};
 	margin-bottom: 1rem;
 	font-size: 0.9rem;
+	flex: 1; // Занимает доступное пространство
+	min-height: 60px; // Фиксированная минимальная высота для описания
 `
 
 const ProgressBar = styled.div`
@@ -105,6 +92,7 @@ const ProgressText = styled.div`
 	font-size: 0.8rem;
 	color: ${props => props.theme.colors.text.secondary};
 	text-align: right;
+	margin-bottom: 10px;
 `
 
 const ActionButton = styled(Link)`
@@ -118,9 +106,13 @@ const ActionButton = styled(Link)`
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	margin-top: 1rem;
+	margin-top: auto; // Прижимает кнопку к низу
 	text-align: center;
 	text-decoration: none;
+	min-height: 50px; // Фиксированная высота кнопки
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
 	&:hover {
 		transform: translateY(-2px);
@@ -204,13 +196,12 @@ const Dashboard = () => {
 				</WelcomeText>
 			</DashboardHeader>
 
-			<SectionTitle>🎓 Мои курсы</SectionTitle>
+			<SectionTitle> Мои курсы</SectionTitle>
 
 			{purchasedCourses && purchasedCourses.length > 0 ? (
 				<CoursesGrid>
 					{purchasedCourses.map(course => (
 						<CourseCard key={course.id}>
-							<CourseImage />
 							<CourseContent>
 								<CourseTitle>{course.title}</CourseTitle>
 								<CourseDescription>{course.description}</CourseDescription>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
@@ -33,15 +33,19 @@ const HeaderContainer = styled.header`
 	border-bottom: 1px solid rgba(99, 102, 241, 0.1);
 	z-index: 1000;
 	animation: ${slideDown} 0.8s ease-out;
+	height: 80px;
+	display: flex;
+	align-items: center;
 `
 
 const Nav = styled.nav`
 	max-width: 1200px;
 	margin: 0 auto;
-	padding: 1rem 2rem;
+	padding: 0 2rem;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	width: 100%;
 `
 
 const Logo = styled(Link)`
@@ -50,6 +54,9 @@ const Logo = styled(Link)`
 	gap: 1rem;
 	text-decoration: none;
 	transition: all 0.3s ease;
+	height: 40px;
+	min-width: 150px;
+	flex-shrink: 0;
 
 	&:hover {
 		transform: translateY(-2px);
@@ -59,6 +66,7 @@ const Logo = styled(Link)`
 const LogoText = styled.div`
 	display: flex;
 	flex-direction: column;
+	white-space: nowrap;
 
 	.main {
 		font-size: 1.5rem;
@@ -67,6 +75,7 @@ const LogoText = styled.div`
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
+		line-height: 1;
 	}
 
 	.subtitle {
@@ -74,6 +83,7 @@ const LogoText = styled.div`
 		color: ${props => props.theme.colors.text.secondary};
 		letter-spacing: 2px;
 		text-transform: uppercase;
+		line-height: 1;
 	}
 `
 
@@ -81,6 +91,10 @@ const NavLinks = styled.div`
 	display: flex;
 	gap: 2rem;
 	align-items: center;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	height: 40px;
 
 	@media (max-width: 968px) {
 		display: none;
@@ -95,6 +109,10 @@ const NavLink = styled(Link)`
 	border-radius: 25px;
 	transition: all 0.3s ease;
 	position: relative;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
 
 	&::before {
 		content: '';
@@ -126,9 +144,14 @@ const AuthSection = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 1rem;
+	height: 50px;
+	min-width: 300px;
+	justify-content: flex-end;
+	flex-shrink: 0;
 
 	@media (max-width: 968px) {
 		display: none;
+		min-width: auto;
 	}
 `
 
@@ -139,6 +162,11 @@ const AuthButton = styled(Link)`
 	transition: all 0.3s ease;
 	position: relative;
 	overflow: hidden;
+	height: 45px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	white-space: nowrap;
 
 	&.login {
 		background: transparent;
@@ -171,6 +199,9 @@ const UserMenu = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 1rem;
+	height: 50px;
+	width: 100%;
+	justify-content: flex-end;
 `
 
 const UserAvatar = styled.div`
@@ -187,6 +218,7 @@ const UserAvatar = styled.div`
 	cursor: pointer;
 	border: 2px solid rgba(99, 102, 241, 0.3);
 	transition: all 0.3s ease;
+	flex-shrink: 0;
 
 	&:hover {
 		transform: scale(1.1);
@@ -290,6 +322,12 @@ const MobileMenuButton = styled.button`
 	color: ${props => props.theme.colors.primary};
 	font-size: 1.2rem;
 	transition: all 0.3s ease;
+	width: 45px;
+	height: 45px;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	margin-left: auto;
 
 	&:hover {
 		background: rgba(99, 102, 241, 0.2);
@@ -298,8 +336,6 @@ const MobileMenuButton = styled.button`
 
 	@media (max-width: 968px) {
 		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 `
 
@@ -386,6 +422,34 @@ const Header = () => {
 	const navigate = useNavigate()
 	const { currentUser, userData, logout } = useAuth()
 
+	const userMenuRef = useRef(null)
+	const mobileMenuRef = useRef(null)
+
+	useEffect(() => {
+		const handleClickOutside = event => {
+			if (
+				userDropdownOpen &&
+				userMenuRef.current &&
+				!userMenuRef.current.contains(event.target)
+			) {
+				setUserDropdownOpen(false)
+			}
+
+			if (
+				mobileMenuOpen &&
+				mobileMenuRef.current &&
+				!mobileMenuRef.current.contains(event.target)
+			) {
+				setMobileMenuOpen(false)
+			}
+		}
+
+		document.addEventListener('mousedown', handleClickOutside)
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+		}
+	}, [userDropdownOpen, mobileMenuOpen])
+
 	useEffect(() => {
 		setMobileMenuOpen(false)
 		setUserDropdownOpen(false)
@@ -454,7 +518,7 @@ const Header = () => {
 
 					<AuthSection>
 						{currentUser ? (
-							<UserMenu>
+							<UserMenu ref={userMenuRef}>
 								<UserAvatar
 									onClick={() => setUserDropdownOpen(!userDropdownOpen)}
 									title='Личный кабинет'
@@ -510,7 +574,7 @@ const Header = () => {
 			</HeaderContainer>
 
 			{mobileMenuOpen && (
-				<MobileMenu>
+				<MobileMenu ref={mobileMenuRef}>
 					<MobileMenuHeader>
 						<Logo to='/' onClick={() => setMobileMenuOpen(false)}>
 							<LogoText>
@@ -541,12 +605,7 @@ const Header = () => {
 								>
 									Личный кабинет
 								</MobileNavItem>
-								<MobileNavItem
-									to='/dashboard/courses'
-									onClick={() => setMobileMenuOpen(false)}
-								>
-									Мои курсы
-								</MobileNavItem>
+
 								<MobileNavItem
 									to='/profile'
 									onClick={() => setMobileMenuOpen(false)}
