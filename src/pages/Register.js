@@ -64,10 +64,12 @@ const Particle = styled.div`
 	height: ${props => props.size || '4px'};
 	background: rgba(99, 102, 241, ${props => props.opacity || '0.6'});
 	border-radius: 50%;
-	animation: ${props =>
-		css`
-			${particleFloat} ${props.duration || '20s'} linear infinite
-		`};
+	animation: ${props => {
+		const duration = props.duration || '20s'
+		return css`
+			${particleFloat} ${duration} linear infinite
+		`
+	}};
 	top: ${props => props.top}%;
 	left: ${props => props.left}%;
 	animation-delay: ${props => props.delay || '0s'};
@@ -142,6 +144,7 @@ const FormLabel = styled.label`
 	font-weight: 600;
 	font-size: 1rem;
 `
+
 const FormInput = styled.input`
 	width: 100%;
 	padding: 1.2rem 3.5rem 1.2rem 1.5rem;
@@ -544,44 +547,54 @@ const Register = () => {
 					setTimeout(() => {
 						navigate('/courses')
 					}, 2000)
-				}
-			} catch (error) {
-				console.error('Ошибка регистрации:', error)
-
-				// Обработка ошибок Firebase
-				switch (error.code) {
-					case 'auth/email-already-in-use':
-						setErrors({ email: 'Пользователь с таким email уже существует' })
-						break
-					case 'auth/invalid-email':
-						setErrors({ email: 'Неверный формат email' })
-						break
-					case 'auth/weak-password':
-						setErrors({
-							password:
-								'Пароль слишком слабый. Используйте не менее 6 символов',
-						})
-						break
-					case 'auth/operation-not-allowed':
-						setErrors({ email: 'Регистрация через email отключена' })
-						break
-					default:
+				} else {
+					// Обработка ошибок из результата
+					const error = result.error
+					if (error && error.code) {
+						switch (error.code) {
+							case 'auth/email-already-in-use':
+								setErrors({
+									email: 'Пользователь с таким email уже существует',
+								})
+								break
+							case 'auth/invalid-email':
+								setErrors({ email: 'Неверный формат email' })
+								break
+							case 'auth/weak-password':
+								setErrors({
+									password:
+										'Пароль слишком слабый. Используйте не менее 6 символов',
+								})
+								break
+							default:
+								setErrors({
+									general: 'Ошибка при создании аккаунта. Попробуйте еще раз',
+								})
+						}
+					} else {
 						setErrors({
 							general: 'Ошибка при создании аккаунта. Попробуйте еще раз',
 						})
-				}
+					}
 
-				const form = e.target
-				form.style.animation = `${shake} 0.5s ease-in-out`
-				setTimeout(() => {
-					form.style.animation = ''
-				}, 500)
+					const form = e.target
+					form.style.animation = `shake 0.5s ease-in-out`
+					setTimeout(() => {
+						form.style.animation = ''
+					}, 500)
+				}
+			} catch (error) {
+				console.error('Ошибка регистрации:', error)
+				setErrors({
+					general: 'Ошибка при создании аккаунта. Попробуйте еще раз',
+				})
 			} finally {
 				setIsLoading(false)
 			}
 		} else {
+			// Используем анимацию напрямую
 			const form = e.target
-			form.style.animation = `${shake} 0.5s ease-in-out`
+			form.style.animation = `shake 0.5s ease-in-out`
 			setTimeout(() => {
 				form.style.animation = ''
 			}, 500)

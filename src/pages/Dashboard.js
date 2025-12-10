@@ -148,57 +148,32 @@ const EmptyState = styled.div`
 `
 
 const Dashboard = () => {
-	const { currentUser, userData } = useAuth()
+	const { currentUser, userData, getPurchasedCourses } = useAuth()
 	const [purchasedCourses, setPurchasedCourses] = useState([])
 	const [loading, setLoading] = useState(true)
 
-	// Здесь будет загрузка реальных курсов из Firebase
+	// Загрузка купленных курсов из Firebase
 	useEffect(() => {
-		const fetchCourses = async () => {
+		const fetchPurchasedCourses = async () => {
 			try {
-				// Временные данные для примера
-				setTimeout(() => {
-					const courses = [
-						{
-							id: '1',
-							title: 'Основы веб-разработки',
-							description:
-								'Полный курс по созданию современных веб-сайтов с нуля',
-							progress: 65,
-							purchasedDate: '2024-01-15',
-							lessons: 24,
-							duration: '48 часов',
-						},
-						{
-							id: '2',
-							title: 'JavaScript для начинающих',
-							description: 'Освойте основы программирования на JavaScript',
-							progress: 30,
-							purchasedDate: '2024-02-01',
-							lessons: 18,
-							duration: '36 часов',
-						},
-						{
-							id: '3',
-							title: 'React с нуля до профи',
-							description: 'Создавайте современные приложения с React',
-							progress: 0,
-							purchasedDate: '2024-02-10',
-							lessons: 32,
-							duration: '64 часа',
-						},
-					]
-					setPurchasedCourses(courses)
-					setLoading(false)
-				}, 1000)
+				setLoading(true)
+				if (currentUser) {
+					const courses = await getPurchasedCourses()
+					console.log('Загруженные курсы:', courses) // Для отладки
+					setPurchasedCourses(courses || [])
+				} else {
+					setPurchasedCourses([])
+				}
 			} catch (error) {
 				console.error('Ошибка загрузки курсов:', error)
+				setPurchasedCourses([])
+			} finally {
 				setLoading(false)
 			}
 		}
 
-		fetchCourses()
-	}, [])
+		fetchPurchasedCourses() // eslint-disable-next-line
+	}, [currentUser, userData]) // Убрал зависимость от userData?.purchasedCourses
 
 	if (loading) {
 		return (
@@ -229,9 +204,9 @@ const Dashboard = () => {
 				</WelcomeText>
 			</DashboardHeader>
 
-			<SectionTitle> Мои курсы</SectionTitle>
+			<SectionTitle>🎓 Мои курсы</SectionTitle>
 
-			{purchasedCourses.length > 0 ? (
+			{purchasedCourses && purchasedCourses.length > 0 ? (
 				<CoursesGrid>
 					{purchasedCourses.map(course => (
 						<CourseCard key={course.id}>
@@ -241,9 +216,9 @@ const Dashboard = () => {
 								<CourseDescription>{course.description}</CourseDescription>
 
 								<ProgressBar>
-									<ProgressFill progress={course.progress} />
+									<ProgressFill progress={course.progress || 0} />
 								</ProgressBar>
-								<ProgressText>Прогресс: {course.progress}%</ProgressText>
+								<ProgressText>Прогресс: {course.progress || 0}%</ProgressText>
 
 								<ActionButton to={`/course/${course.id}`}>
 									{course.progress > 0

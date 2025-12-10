@@ -479,13 +479,6 @@ const Header = () => {
 										</DropdownItem>
 
 										<DropdownItem
-											to='/dashboard/courses'
-											onClick={() => setUserDropdownOpen(false)}
-										>
-											Мои курсы
-										</DropdownItem>
-
-										<DropdownItem
 											to='/profile'
 											onClick={() => setUserDropdownOpen(false)}
 										>
