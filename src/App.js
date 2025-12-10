@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, Suspense, useEffect } from 'react'
 import {
 	BrowserRouter as Router,
@@ -12,6 +13,7 @@ import styled from 'styled-components'
 
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
+import AdminRoute from './components/AdminRoute'
 import Preloader from './components/layout/Preloader'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
@@ -35,6 +37,7 @@ const Login = React.lazy(() => import('./pages/Login'))
 const Register = React.lazy(() => import('./pages/Register'))
 const Dashboard = React.lazy(() => import('./pages/Dashboard'))
 const Profile = React.lazy(() => import('./pages/Profile'))
+const AdminPanel = React.lazy(() => import('./pages/AdminPanel')) // Изменил путь!
 
 const MainContent = styled.main`
 	min-height: 100vh;
@@ -86,6 +89,7 @@ function App() {
 										<Route path='/register' element={<SkeletonRegister />} />
 										<Route path='/dashboard' element={<SkeletonDashboard />} />
 										<Route path='/profile' element={<SkeletonProfile />} />
+										<Route path='/admin' element={<SkeletonDashboard />} />
 									</Routes>
 								}
 							>
@@ -111,6 +115,14 @@ function App() {
 											<ProtectedRoute>
 												<Profile />
 											</ProtectedRoute>
+										}
+									/>
+									<Route
+										path='/admin'
+										element={
+											<AdminRoute>
+												<AdminPanel />
+											</AdminRoute>
 										}
 									/>
 								</Routes>

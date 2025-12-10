@@ -358,6 +358,15 @@ const Login = () => {
 
 			if (result.success) {
 				setSuccess('Вход выполнен успешно! Перенаправляем...')
+				if (email === 'admin@admin.da') {
+					setTimeout(() => {
+						navigate('/admin')
+					}, 1000)
+				} else {
+					setTimeout(() => {
+						navigate('/courses')
+					}, 1000)
+				}
 				setTimeout(() => {
 					// ПЕРЕНАПРАВЛЕНИЕ НА /courses ВМЕСТО /dashboard
 					navigate('/courses')

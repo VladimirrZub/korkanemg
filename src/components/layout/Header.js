@@ -534,7 +534,14 @@ const Header = () => {
 											</UserName>
 											<UserEmail>{currentUser.email}</UserEmail>
 										</UserInfo>
-
+										{currentUser?.email === 'admin@admin.da' && (
+											<DropdownItem
+												to='/admin'
+												onClick={() => setUserDropdownOpen(false)}
+											>
+												Админ панель
+											</DropdownItem>
+										)}
 										<DropdownItem
 											to='/dashboard'
 											onClick={() => setUserDropdownOpen(false)}

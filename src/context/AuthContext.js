@@ -1,3 +1,4 @@
+// context/AuthContext.js
 import React, { createContext, useState, useEffect, useContext } from 'react'
 import {
 	createUserWithEmailAndPassword,
@@ -17,6 +18,7 @@ import {
 	where,
 	getDocs,
 	arrayUnion,
+	arrayRemove,
 	serverTimestamp,
 } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
@@ -31,6 +33,36 @@ export function AuthProvider({ children }) {
 	const [currentUser, setCurrentUser] = useState(null)
 	const [userData, setUserData] = useState(null)
 	const [loading, setLoading] = useState(true)
+
+	// Создание/проверка записи админа в Firestore
+	const createAdminRecord = async userId => {
+		try {
+			const adminDocRef = doc(db, 'users', userId)
+			const adminDoc = await getDoc(adminDocRef)
+
+			if (!adminDoc.exists()) {
+				// Создаем запись админа
+				const adminData = {
+					uid: userId,
+					email: 'admin@admin.da',
+					firstName: 'Admin',
+					lastName: 'Administrator',
+					displayName: 'Admin Administrator',
+					phone: '',
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString(),
+					purchasedCourses: [],
+					emailVerified: true,
+					role: 'admin',
+					avatar: '',
+				}
+				await setDoc(adminDocRef, adminData)
+				console.log('Запись админа создана в Firestore')
+			}
+		} catch (error) {
+			console.error('Ошибка создания записи админа:', error)
+		}
+	}
 
 	// Проверка, существует ли пользователь с таким email
 	async function checkEmailExists(email) {
@@ -72,9 +104,12 @@ export function AuthProvider({ children }) {
 			)
 			console.log('Пользователь создан в Auth:', userCredential.user.uid)
 
-			// 2. Отправляем письмо для подтверждения email
-			await sendEmailVerification(userCredential.user)
-			console.log('Письмо для подтверждения отправлено')
+			// Для администратора не отправляем подтверждение email
+			if (email !== 'admin@admin.da') {
+				// 2. Отправляем письмо для подтверждения email
+				await sendEmailVerification(userCredential.user)
+				console.log('Письмо для подтверждения отправлено')
+			}
 
 			// 3. Обновляем профиль с именем
 			await updateProfile(userCredential.user, {
@@ -93,9 +128,9 @@ export function AuthProvider({ children }) {
 				phone: '',
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),
-				purchasedCourses: [], // Пустой массив купленных курсов
-				emailVerified: false,
-				role: 'user',
+				purchasedCourses: [],
+				emailVerified: email === 'admin@admin.da' ? true : false,
+				role: email === 'admin@admin.da' ? 'admin' : 'user',
 				avatar: '',
 			}
 
@@ -110,15 +145,13 @@ export function AuthProvider({ children }) {
 				console.log('Данные пользователя установлены:', userDoc.data())
 			}
 
-			// Возвращаем успешный результат
 			return {
 				success: true,
 				user: userCredential.user,
-				message: 'Регистрация успешна! Проверьте email для подтверждения.',
+				message: 'Регистрация успешна!',
 			}
 		} catch (error) {
 			console.error('Ошибка регистрации:', error)
-			// Возвращаем ошибку
 			return {
 				success: false,
 				error: {
@@ -133,25 +166,69 @@ export function AuthProvider({ children }) {
 	async function login(email, password) {
 		try {
 			console.log('Попытка входа:', email)
-			const userCredential = await signInWithEmailAndPassword(
-				auth,
-				email,
-				password
-			)
-			console.log('Вход успешен:', userCredential.user.uid)
 
-			// Получаем данные пользователя из Firestore
-			const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid))
-			if (userDoc.exists()) {
-				setUserData(userDoc.data())
-				console.log('Данные пользователя загружены:', userDoc.data())
+			// Для админа используем специальную логику
+			if (email === 'admin@admin.da' && password === 'admin1') {
+				try {
+					// Пытаемся войти с существующими учетными данными
+					const userCredential = await signInWithEmailAndPassword(
+						auth,
+						email,
+						password
+					)
+					console.log('Админ вошел в систему:', userCredential.user.uid)
+
+					// Создаем/проверяем запись админа в Firestore
+					await createAdminRecord(userCredential.user.uid)
+
+					// Получаем данные админа из Firestore
+					const adminDoc = await getDoc(
+						doc(db, 'users', userCredential.user.uid)
+					)
+					if (adminDoc.exists()) {
+						setUserData(adminDoc.data())
+						console.log('Данные админа загружены:', adminDoc.data())
+					}
+
+					return {
+						success: true,
+						user: userCredential.user,
+					}
+				} catch (authError) {
+					// Если админа нет в auth, создаем его
+					if (authError.code === 'auth/user-not-found') {
+						// Создаем админа через регистрацию
+						const adminInfo = {
+							firstName: 'Admin',
+							lastName: 'Administrator',
+						}
+						const result = await signup(email, password, adminInfo)
+						return result
+					}
+					throw authError
+				}
 			} else {
-				console.log('Документ пользователя не найден в Firestore')
-			}
+				// Обычный вход для других пользователей
+				const userCredential = await signInWithEmailAndPassword(
+					auth,
+					email,
+					password
+				)
+				console.log('Вход успешен:', userCredential.user.uid)
 
-			return {
-				success: true,
-				user: userCredential.user,
+				// Получаем данные пользователя из Firestore
+				const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid))
+				if (userDoc.exists()) {
+					setUserData(userDoc.data())
+					console.log('Данные пользователя загружены:', userDoc.data())
+				} else {
+					console.log('Документ пользователя не найден в Firestore')
+				}
+
+				return {
+					success: true,
+					user: userCredential.user,
+				}
 			}
 		} catch (error) {
 			console.error('Ошибка входа:', error)
@@ -202,7 +279,11 @@ export function AuthProvider({ children }) {
 			})
 
 			// Проверяем, не куплен ли уже курс
-			if (userData?.purchasedCourses?.includes(courseId)) {
+			const userDocRef = doc(db, 'users', currentUser.uid)
+			const userDoc = await getDoc(userDocRef)
+			const userData = userDoc.exists() ? userDoc.data() : {}
+
+			if (userData?.purchasedCourses?.some(course => course.id === courseId)) {
 				console.log('Курс уже куплен:', courseId)
 				return {
 					success: false,
@@ -211,9 +292,19 @@ export function AuthProvider({ children }) {
 			}
 
 			// 1. Добавляем курс в purchasedCourses пользователя
-			const userDocRef = doc(db, 'users', currentUser.uid)
+			const courseToAdd = {
+				id: String(courseId), // Всегда строка!
+				title: courseData.title || `Курс ${courseId}`,
+				price: courseData.price || 0,
+				category: courseData.category || 'Без категории',
+				description: courseData.description || '',
+				purchaseDate: new Date().toISOString(),
+			}
+
+			console.log('➕ Добавляемый курс:', courseToAdd)
+
 			await updateDoc(userDocRef, {
-				purchasedCourses: arrayUnion(courseId),
+				purchasedCourses: arrayUnion(courseToAdd),
 				updatedAt: new Date().toISOString(),
 			})
 			console.log('Курс добавлен в purchasedCourses пользователя')
@@ -281,256 +372,13 @@ export function AuthProvider({ children }) {
 				return []
 			}
 
-			console.log('Купленные курсы ID:', userData.purchasedCourses)
+			console.log('Купленные курсы:', userData.purchasedCourses)
 
-			// Получаем данные курсов
-			const purchasedCourses = []
-			for (const courseId of userData.purchasedCourses) {
-				try {
-					const courseDoc = await getDoc(
-						doc(db, 'courses', courseId.toString())
-					)
-					if (courseDoc.exists()) {
-						purchasedCourses.push({
-							id: courseDoc.id,
-							...courseDoc.data(),
-							progress: 0, // Начальный прогресс
-						})
-						console.log('Курс найден в Firestore:', courseDoc.id)
-					} else {
-						// Если курса нет в коллекции courses, создаем его из локального массива
-						console.log(
-							'Курс не найден в Firestore, используем локальные данные:',
-							courseId
-						)
-						const allCourses = [
-							{
-								id: 1,
-								title: 'Веб-разработка на React',
-								category: 'Программирование',
-								description:
-									'Освойте современную фронтенд-разработку с использованием React, Redux и современных инструментов',
-							},
-							{
-								id: 2,
-								title: 'Python для анализа данных',
-								category: 'Программирование',
-								description:
-									'Изучите Python и библиотеки для анализа данных: Pandas, NumPy, Matplotlib и Scikit-learn',
-							},
-							{
-								id: 3,
-								title: 'Мобильная разработка iOS',
-								category: 'Программирование',
-								description:
-									'Создание приложений для iOS на Swift с нуля до публикации в App Store',
-							},
-							{
-								id: 4,
-								title: 'Fullstack JavaScript',
-								category: 'Программирование',
-								description:
-									'Полный курс по JavaScript: от основ до создания полноценных веб-приложений',
-							},
-							{
-								id: 5,
-								title: 'Java для enterprise',
-								category: 'Программирование',
-								description:
-									'Разработка корпоративных приложений на Java Spring Framework',
-							},
-							{
-								id: 6,
-								title: 'Frontend с Vue.js',
-								category: 'Программирование',
-								description:
-									'Современная фронтенд-разработка с Vue 3, Composition API и экосистемой',
-							},
-							{
-								id: 7,
-								title: 'Backend с Node.js',
-								category: 'Программирование',
-								description:
-									'Создание серверных приложений на Node.js с Express и MongoDB',
-							},
-							{
-								id: 8,
-								title: 'DevOps и Docker',
-								category: 'Программирование',
-								description:
-									'Автоматизация развертывания и управление инфраструктурой',
-							},
-							{
-								id: 9,
-								title: 'Тестирование ПО',
-								category: 'Программирование',
-								description:
-									'Автоматизированное тестирование веб и мобильных приложений',
-							},
-							{
-								id: 10,
-								title: 'Game Development',
-								category: 'Программирование',
-								description: 'Разработка игр на Unity и C# для разных платформ',
-							},
-							{
-								id: 11,
-								title: 'UX/UI Дизайн',
-								category: 'Дизайн',
-								description:
-									'Научитесь создавать интуитивные и красивые интерфейсы для веб и мобильных приложений',
-							},
-							{
-								id: 12,
-								title: 'Графический дизайн',
-								category: 'Дизайн',
-								description:
-									'Освойте Adobe Photoshop, Illustrator и создавайте профессиональные дизайны',
-							},
-							{
-								id: 13,
-								title: 'Motion Design',
-								category: 'Дизайн',
-								description:
-									'Создание анимации и визуальных эффектов в After Effects',
-							},
-							{
-								id: 14,
-								title: '3D моделирование',
-								category: 'Дизайн',
-								description: 'Основы 3D моделирования в Blender для начинающих',
-							},
-							{
-								id: 15,
-								title: 'Product Design',
-								category: 'Дизайн',
-								description: 'Полный цикл проектирования digital-продуктов',
-							},
-							{
-								id: 16,
-								title: 'Бренд-дизайн',
-								category: 'Дизайн',
-								description:
-									'Создание айдентики и фирменного стиля для компаний',
-							},
-							{
-								id: 17,
-								title: 'Digital-маркетинг',
-								category: 'Маркетинг',
-								description:
-									'Полный курс по digital-маркетингу: SMM, контекстная реклама, SEO и аналитика',
-							},
-							{
-								id: 18,
-								title: 'SMM Продвижение',
-								category: 'Маркетинг',
-								description:
-									'Эффективное продвижение в социальных сетях: Instagram, VK, Telegram',
-							},
-							{
-								id: 19,
-								title: 'SEO Оптимизация',
-								category: 'Маркетинг',
-								description:
-									'Продвижение сайтов в поисковых системах Яндекс и Google',
-							},
-							{
-								id: 20,
-								title: 'Контент-маркетинг',
-								category: 'Маркетинг',
-								description:
-									'Создание и продвижение контента для привлечения клиентов',
-							},
-							{
-								id: 21,
-								title: 'Email-маркетинг',
-								category: 'Маркетинг',
-								description:
-									'Автоматизация email-рассылок и повышение конверсии',
-							},
-							{
-								id: 22,
-								title: 'Performance Marketing',
-								category: 'Маркетинг',
-								description:
-									'Работа с performance-каналами и оптимизация рекламных бюджетов',
-							},
-							{
-								id: 23,
-								title: 'Project Management',
-								category: 'Менеджмент',
-								description:
-									'Управление проектами по методологии Agile, Scrum и классическим подходам',
-							},
-							{
-								id: 24,
-								title: 'Product Management',
-								category: 'Менеджмент',
-								description:
-									'Управление digital-продуктами от идеи до запуска и развития',
-							},
-							{
-								id: 25,
-								title: 'HR Management',
-								category: 'Менеджмент',
-								description:
-									'Современные подходы к управлению персоналом в IT-компаниях',
-							},
-							{
-								id: 26,
-								title: 'Team Leadership',
-								category: 'Менеджмент',
-								description:
-									'Развитие лидерских качеств и управление командами разработки',
-							},
-							{
-								id: 27,
-								title: 'Data Analytics',
-								category: 'Аналитика',
-								description:
-									'Анализ данных с помощью SQL, Python и визуализация в Tableau',
-							},
-							{
-								id: 28,
-								title: 'Web Analytics',
-								category: 'Аналитика',
-								description:
-									'Настройка и анализ веб-метрик в Google Analytics и Яндекс.Метрика',
-							},
-							{
-								id: 29,
-								title: 'Business Intelligence',
-								category: 'Аналитика',
-								description: 'Построение систем бизнес-аналитики и дашбордов',
-							},
-							{
-								id: 30,
-								title: 'Machine Learning Basics',
-								category: 'Аналитика',
-								description: 'Введение в машинное обучение для анализа данных',
-							},
-						]
-
-						const foundCourse = allCourses.find(
-							course => course.id.toString() === courseId.toString()
-						)
-						if (foundCourse) {
-							purchasedCourses.push({
-								id: foundCourse.id.toString(),
-								title: foundCourse.title,
-								category: foundCourse.category,
-								description: foundCourse.description,
-								duration: foundCourse.duration,
-								price: foundCourse.price,
-								progress: 0,
-							})
-							console.log('Курс найден в локальных данных:', foundCourse.title)
-						}
-					}
-				} catch (error) {
-					console.error('Ошибка получения курса', courseId, ':', error)
-				}
-			}
+			// Добавляем прогресс к каждому курсу
+			const purchasedCourses = userData.purchasedCourses.map(course => ({
+				...course,
+				progress: 0,
+			}))
 
 			console.log('Итоговые купленные курсы:', purchasedCourses)
 			return purchasedCourses
@@ -578,18 +426,149 @@ export function AuthProvider({ children }) {
 		}
 	}
 
+	// Получение всех пользователей (только для админа)
+	async function getAllUsers() {
+		try {
+			// Убираем проверку, чтобы увидеть ошибку если она есть
+			console.log(
+				'Запрос всех пользователей, текущий пользователь:',
+				currentUser?.email
+			)
+
+			const usersRef = collection(db, 'users')
+			const querySnapshot = await getDocs(usersRef)
+
+			const users = []
+			querySnapshot.forEach(doc => {
+				const data = doc.data()
+				// Пропускаем самого админа
+				if (data.email !== 'admin@admin.da') {
+					users.push({
+						id: doc.id,
+						...data,
+					})
+				}
+			})
+
+			console.log('Найдено пользователей:', users.length)
+			return users
+		} catch (error) {
+			console.error('Ошибка получения пользователей:', error)
+			throw error
+		}
+	}
+
+	// Удаление курса у пользователя (только для админа)
+	async function deleteUserCourse(userId, courseId) {
+		try {
+			console.log('🔵 Удаление курса:', {
+				userId,
+				courseId,
+				type: typeof courseId,
+				value: courseId,
+			})
+
+			if (!userId || !courseId) {
+				throw new Error('Не указан userId или courseId')
+			}
+
+			const userDocRef = doc(db, 'users', userId)
+			const userDoc = await getDoc(userDocRef)
+
+			if (!userDoc.exists()) {
+				throw new Error('Пользователь не найден')
+			}
+
+			const userData = userDoc.data()
+			const currentCourses = userData.purchasedCourses || []
+
+			// Преобразуем courseId в строку для сравнения
+			const courseIdStr = String(courseId)
+
+			console.log('📊 Данные пользователя:', {
+				email: userData.email,
+				totalCourses: currentCourses.length,
+				courses: currentCourses.map(c => ({ id: c.id, type: typeof c.id })),
+			})
+
+			console.log('🔍 Ищем курс с ID:', courseIdStr)
+
+			// Фильтруем курсы - сравниваем как строки
+			const updatedCourses = currentCourses.filter(course => {
+				const courseIdValue = course?.id
+				if (!courseIdValue) return true // сохраняем курсы без ID
+
+				const courseIdStrValue = String(courseIdValue)
+				const shouldKeep = courseIdStrValue !== courseIdStr
+
+				if (!shouldKeep) {
+					console.log('🗑️ Найден курс для удаления:', {
+						courseId: courseIdValue,
+						courseTitle: course.title,
+						match: false,
+					})
+				}
+
+				return shouldKeep
+			})
+
+			console.log('📊 Было курсов:', currentCourses.length)
+			console.log('📊 Осталось курсов:', updatedCourses.length)
+			console.log(
+				'📊 Удалено курсов:',
+				currentCourses.length - updatedCourses.length
+			)
+
+			// Проверяем, что действительно что-то изменилось
+			if (currentCourses.length === updatedCourses.length) {
+				console.log('⚠️ Внимание: курс не найден для удаления')
+			}
+
+			await updateDoc(userDocRef, {
+				purchasedCourses: updatedCourses,
+				updatedAt: new Date().toISOString(),
+			})
+
+			console.log('✅ Курс успешно удален')
+			return {
+				success: true,
+				removed: currentCourses.length - updatedCourses.length,
+			}
+		} catch (error) {
+			console.error('❌ Ошибка удаления курса:', error)
+			console.error('Детали ошибки:', {
+				message: error.message,
+				stack: error.stack,
+				userId,
+				courseId,
+			})
+			throw error
+		}
+	}
+
 	// Загрузка данных пользователя из Firestore
 	async function loadUserData(uid) {
 		try {
 			console.log('Загрузка данных пользователя:', uid)
+
 			const userDoc = await getDoc(doc(db, 'users', uid))
 			if (userDoc.exists()) {
 				const data = userDoc.data()
 				setUserData(data)
 				console.log('Данные пользователя загружены:', data)
 			} else {
-				console.log('Документ пользователя не найден')
-				setUserData(null)
+				// Если запись не найдена, создаем для админа
+				if (currentUser?.email === 'admin@admin.da') {
+					await createAdminRecord(uid)
+					// Повторно получаем данные
+					const newUserDoc = await getDoc(doc(db, 'users', uid))
+					if (newUserDoc.exists()) {
+						setUserData(newUserDoc.data())
+					}
+				} else {
+					console.log('Документ пользователя не найден')
+					setUserData(null)
+				}
 			}
 		} catch (error) {
 			console.error('Ошибка загрузки данных пользователя:', error)
@@ -626,6 +605,8 @@ export function AuthProvider({ children }) {
 		purchaseCourse,
 		getPurchasedCourses,
 		updateUserProfile,
+		getAllUsers,
+		deleteUserCourse,
 		loading,
 	}
 
